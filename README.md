@@ -100,7 +100,7 @@ An error occurs if the file doesn't exist
 If both the -scp and -hfe arguments are provided then the program will convert the SCP file to an HFE file. This is done by
 taking the flux transition timing information from the SCP file and converting it to binary data
 
-See MFM page for details (To Do)
+See [MFM page][docs-mfm] for details (To Do)
 
 HFE files have two problems, in my opinion
 
@@ -134,7 +134,7 @@ If both the -scp and -img arguments are provided then the program will convert t
 taking the flux transition timing information from the SCP file and converting it to binary data and then decoding it to find the data
 portion
 
-See MFM page for details (To Do)
+See [MFM page][docs-mfm] for details (To Do)
 
 Note that the IMG file is always converted from the SCP file even if the -hfe argument is given. This is because the contents of the
 disk are used to determine if the HFE track needs to be rotated. So the information needed to generate the IMG file is already available
@@ -145,7 +145,7 @@ before the HFE file is generated.
 If only the -hfe and -img arguments are provided then the program will try to convert the HFE file to an IMG file. This is done by reading
 the binary data from the HFE file and decoding the it to find the data portion.
 
-See MFM page for details (To Do)
+See [MFM page][docs-mfm] for details
 
 Note that this may fail for the reasons described above. If HFE track ends in the middle of a sector then the program will try to continue
 from the start of the track but due to the discontinuity the sector may be invalid
@@ -169,7 +169,7 @@ and the following repositories
 * [greaseweazle][github-gw]
 * [HxCFloppyEmulator][github-hxc]
 
-
+[docs-mfm]: Docs/MFM.md
 [ECMA-70]: https://ecma-international.org/publications-and-standards/standards/ecma-70/
 [ECMA-99]: https://ecma-international.org/publications-and-standards/standards/ecma-99/
 [ECMA-100]: https://ecma-international.org/publications-and-standards/standards/ecma-100/
