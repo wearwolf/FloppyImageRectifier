@@ -16,7 +16,7 @@ For an example lets consider the byte 11010010. To encode this we simply insert 
 | Data | | 1| | 1| | 0| | 1| | 0| | 0| | 1| | 0 | |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Clock | 1 | | 1 | | 1 | | 1 | | 1 | | 1 | | 1 | | 1 |  | 1 |
-| Result | 1 | 1| 1 | 1| 1 | 0| 1 | 1| 1 | 0| 1 | 0| 1 | 1| 1 | 0 | 1 |
+| Result | 1 | **1** | 1 | **1** | 1 | **0** | 1 | **1** | 1 | **0** | 1 | **0** | 1 | **1** | 1 | **0** | 1 |
 
 The following diagram shows how this data would be recorded on a magnetic medium
 
