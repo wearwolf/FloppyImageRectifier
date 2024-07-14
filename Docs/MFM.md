@@ -7,5 +7,5 @@ the clock bit if it is adjacent to a 1 bit. This has the benefit of allowing twi
 between any two flux transitions is doubled but at the cost of increasing the complexity of timing synchronization because there is no
 longer a consistent clock pulse
 
-[docs-fm]: Docs/FM.md
+[docs-fm]: FM.md
 
