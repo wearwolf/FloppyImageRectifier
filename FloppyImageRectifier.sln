@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "FloppyImageRectifier", "FloppyImageRectifier\FloppyImageRectifier.vbproj", "{E896EF0F-8D68-4D18-A09D-378C4663404B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3219662A-7229-4BA6-9CC0-CBACA7ABF6B7}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6C321931-95CB-4FB3-9487-568C14C33258}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\FM.md = Docs\FM.md
+		Docs\MFM.md = Docs\MFM.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E896EF0F-8D68-4D18-A09D-378C4663404B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E896EF0F-8D68-4D18-A09D-378C4663404B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E896EF0F-8D68-4D18-A09D-378C4663404B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E896EF0F-8D68-4D18-A09D-378C4663404B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {08192085-D1CE-48BC-8C86-0AEF42814AC2}
+	EndGlobalSection
+EndGlobal
