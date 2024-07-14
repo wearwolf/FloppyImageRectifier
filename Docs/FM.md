@@ -13,14 +13,14 @@ each other.
 
 For an example lets consider the byte 11010010. To encode this we simply insert a 1 clock bit between each data bit
 
-| Data | | 1| | 1| | 0| | 1| | 0| | 0| | 1| | 0 | |
-| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Clock | 1 | | 1 | | 1 | | 1 | | 1 | | 1 | | 1 | | 1 |  | 1 |
+| Data   |   |   1   |   |   1   |   |   0   |   |   1   |   |   0   |   |   0   |   |   1   |   |   0   |   |
+| ---    | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Clock  | 1 |       | 1 |       | 1 |       | 1 |       | 1 |       | 1 |       | 1 |       | 1 |       | 1 |
 | Result | 1 | **1** | 1 | **1** | 1 | **0** | 1 | **1** | 1 | **0** | 1 | **0** | 1 | **1** | 1 | **0** | 1 |
 
 The following diagram shows how this data would be recorded on a magnetic medium
 
-![A diagram showing how information is encoded with FM Encoding](FM_Data.svg)
+![A diagram showing how the byte 11010010 is stored with FM Encoding](FM_Data.svg)
 
 The dark grey squares are the clock bits and the light grey squares are the data bits. There is a clock bit before and after each data bit.
 The sections are known as bitcells. The blue line indicates the polarity of the magnetic substance as the information is read. The starting
