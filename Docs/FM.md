@@ -24,7 +24,8 @@ The following diagram shows how this data would be recorded on a magnetic medium
 
 The dark grey squares are the clock bits and the light grey squares are the data bits. There is a clock bit before and after each data bit.
 The sections are known as bitcells. The blue line indicates the polarity of the magnetic substance as the information is read. The starting
-position is irrelevant as information is encoded using the change in polarity.
+position is irrelevant as information is encoded using the change in polarity. For cells containing a 1 the line goes from near the bottom
+to near the top or from near the top to near the bottom. For cells containing a 0 the line stays at the same level.
 
 The bitcells are as follows
 
