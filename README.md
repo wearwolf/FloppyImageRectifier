@@ -1,6 +1,6 @@
 ## Overview
 
-This is a tool that I wrote to convert floppy images to different formats. I wanted to image my collection of floppies and
+This is a tool that I wrote to convert (Or rectify) floppy images to different formats. I wanted to image my collection of floppies and
 I wasn't entirely satisfied with the tools that I was finding. They did the job but not in the exact way that I wanted them to.
 
 Note that this tool is designed for use with PC floppy types as that is what I am currently working with
@@ -10,7 +10,7 @@ Note that this tool is designed for use with PC floppy types as that is what I a
 The tool takes one or more paths and a type identifier. 
 
 ```
-WFloppyConverter.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <diskTypeIdentifier>
+FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <diskTypeIdentifier>
 ```
 
 \<Path-to-SCP-File> - A path to an SCP file, will always be an input file if provided, may be an output file
