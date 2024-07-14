@@ -159,6 +159,11 @@ This tool is based on the information in the various flexible disk cartridge ECM
 * [ECMA-100] - Standard for 3.5" 80 Track MFM (720k) disks
 * [ECMA-125] - Standard for 3.5" 80 track MFM (1440k) disks
 
+The specification for the various file formats
+
+* [SCP][scp-spec]
+* [HFE][hfe-spec]
+
 and the following repositories
 
 * [greaseweazle][github-gw]
@@ -169,5 +174,7 @@ and the following repositories
 [ECMA-99]: https://ecma-international.org/publications-and-standards/standards/ecma-99/
 [ECMA-100]: https://ecma-international.org/publications-and-standards/standards/ecma-100/
 [ECMA-125]: https://ecma-international.org/publications-and-standards/standards/ecma-125/
+[scp-spec]: https://www.cbmstuff.com/downloads/scp/scp_image_specs.txt
+[hfe-spec]: https://hxc2001.com/download/floppy_drive_emulator/SDCard_HxC_Floppy_Emulator_HFE_file_format.pdf
 [github-gw]: https://github.com/keirf/greaseweazle
 [github-hxc]: https://github.com/jfdelnero/HxCFloppyEmulator
