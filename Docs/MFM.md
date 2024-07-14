@@ -51,6 +51,9 @@ The bitcells are as follows
 * Data bit, 0, no polarity change
 * Clock bit, unknown
 
+We don't know what the last clock bit is because it depends on what the next data bit is. If the last data bit was a 1 then we would
+know that the next clock bit would have to be a 0.
+
 Note that with MFM most clock bits are 0s. This ensures that flux transitions are separated by at least 1 bitcell. Note also that
 there are stretches of two or three 0s in a row. The density of flux transitions has gone down which allows for more information to
 be stored by the lack of consistent clock pulses meant that synchronization is more complicated.
