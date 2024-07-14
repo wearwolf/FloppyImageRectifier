@@ -9,7 +9,7 @@ FM Encoding inserts a flux transition as a clock bit between each data bit. This
 amount of information that can be stored because there is a physical limit for how close two flux transitions can be to
 each other.
 
-## Examples
+## Example
 
 For an example lets consider the byte 11010010. To encode this we simply insert a 1 clock bit between each data bit
 
