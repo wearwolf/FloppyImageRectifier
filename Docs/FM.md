@@ -48,7 +48,7 @@ The bitcells are as follows
 * Data bit, 0, no polarity change
 * Clock bit, 1, polarity changes
 
-Note that because of the clock bits, most bitcells contain a 1 and there are long stretches of 1s and never more than one 0 in a row.
+Note that because of the clock bits, most bitcells contain a 1 and that there are long stretches of 1s but never more than one 0 in a row.
 This makes the clock synchronization easy as a flux transition occurs every bitcell or every other bitcell. The problem is that the
 amount of data is limited by how close flux transitions can be to each other.
 
