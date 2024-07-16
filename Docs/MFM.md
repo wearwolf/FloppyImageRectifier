@@ -53,7 +53,7 @@ From left to right we have
 * Data bit, 0, no polarity change
 * Clock bit, unknown
 
-The minimum number of 0s in a row is 1 and the maximum is 3 because of this MFM Encoding is also known as GCR(1,3) with the 1 representing
+The minimum number of 0s in a row is one and the maximum is three because of this MFM Encoding is also known as GCR(1,3) with the 1 representing
 the minimum number of 0s and the 3 representing the maximum number of 0s.
 
 For MFM Encoding the bitcell length must be at least the minimum flux transition spacing as it's possible to have a flux transition

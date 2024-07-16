@@ -50,7 +50,7 @@ From left to right we have
 * Data bit, 0, no polarity change
 * Clock bit, 1, polarity changes
 
-The minimum number of 0s in a row is 0 and the maximum is 1 because of this FM Encoding is also known as Group coded recording, GCR,
+The minimum number of 0s in a row is zero and the maximum is one because of this FM Encoding is also known as Group coded recording, GCR,
 (0,1) with the 0 representing the minimum number of 0s and the 1 representing the maximum number of 0s.
 
 For FM Encoding the bitcell length must be at least twice the minimum flux transition spacing as it's possible for there to be 3 flux
