@@ -55,5 +55,3 @@ The minimum number of 0s in a row is zero and the maximum is one because of this
 
 For FM Encoding the bitcell length must be at least twice the minimum flux transition spacing as it's possible for there to be 3 flux
 transitions in the span of a bitcell.
-
-## Disk Layout
