@@ -100,6 +100,8 @@ Basically the controller compares the expected bitcell length against the actual
 the expected bitcell length towards the actual bitcell length by some fraction of the difference. The idea is that eventually the two
 will lock on and keep the expected bitcell length consistent with what is being read.
 
+Note that in actual floppy controllers the PLL logic is actually applied to the frequency being used to decode data and not the
+bitcell length but the affect is the same.
 
 ## Disk Layout
 
