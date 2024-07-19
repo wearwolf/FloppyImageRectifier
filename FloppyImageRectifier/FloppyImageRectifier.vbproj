@@ -6,4 +6,10 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\IMG\" />
+    <Folder Include="Models\HFE\" />
+    <Folder Include="Models\SCP\" />
+  </ItemGroup>
+
 </Project>
