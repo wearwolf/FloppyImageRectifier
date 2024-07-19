@@ -1,6 +1,6 @@
 # FM Encoding
 
-FM, or Frequency Encoding, is a method of storing information on magnetic media
+FM, or Frequency Modulation Encoding, is a method of storing information on magnetic media
 
 Information is stored using changes in the polarity of a magnetic substance, these are known as flux transitions.
 A flux transition encodes a binary 1 while a lack of a flux transition encodes a 0.
