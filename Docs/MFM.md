@@ -83,10 +83,10 @@ bitcell length in seconds = ((rotation speed in RPM x 2 pi) / 60) / bitcell leng
 
 | Disk Type | Rotation Speed (RPM) | Rotation Speed (rad/s) | bitcell length (μrad) | bitcell length (rad) | Bitcell length (s) |
 | --- | ---: |  ---: |  ---: | ---: | ---: |
-| 5.25" DS-DD 360k | 300 | 31.416 | 125.7 | 0.0001257 | 4.00116 x 10<sup>−6<sup> |
-| 5.25" DS-HD 1200k | 360 | 37.699 | 75.5 | 0.0000755 | 2.0027 x 10<sup>−6<sup>  |
-| 3.5" DS-DD 720k | 300 | 31.416 | 125.7 | 0.0001257 | 4.00116 x 10<sup>−6<sup> |
-| 3.5" DS-HD 1440k | 300 | 31.416 | 62.8 | 0.0000628 | 1.99899 x 10<sup>−6<sup> |
+| 5.25" DS-DD 360k | 300 | 31.416 | 125.7 | 0.0001257 | 4.00116 x 10<sup>−6</sup> |
+| 5.25" DS-HD 1200k | 360 | 37.699 | 75.5 | 0.0000755 | 2.0027 x 10<sup>−6</sup>  |
+| 3.5" DS-DD 720k | 300 | 31.416 | 125.7 | 0.0001257 | 4.00116 x 10<sup>−6</sup> |
+| 3.5" DS-HD 1440k | 300 | 31.416 | 62.8 | 0.0000628 | 1.99899 x 10<sup>−6</sup> |
 
 But this is just the expected bitcell length, the actually length encountered on a disk may very because no drive is created perfectly
 or stays perfect. To handle this, floppy controllers need to try and figure out what the encoded bitcell length is. They do this with a
@@ -97,7 +97,225 @@ the difference. The idea is that eventually the two will lock on and keep the ex
 
 ## Disk Layout
 
+Floppy Disks have data encoded onto 40 or 80 tracks depending on the disk type. Only parts of the track are actually used for data, the
+rest are used for metadata and gaps.
 
+The layout of a track is as follows
+
+| Section | Description |
+| --- | --- |
+| Index Gap | 32 to 146 bytes of unspecified data (Cannot contain the identifier mark) |
+| Sector Identifier | Includes sector information for the next data block |
+| Identifier Gap | 22 0x4E bytes |
+| Data Block | The sector data |
+| Data Block Gap | 101 0x4E bytes |
+| ... | A track will contain several sectors each with their own Sector Identifier, Identifier Gap, Data Block and Data Block Gap |
+| Track Gap | A series of 0x4E bytes until the index occurs |
+
+### Sector Identifier
+
+The sector identifier contains information about the sector as follows
+
+| Part | Description |
+| --- | --- |
+| Identifier Mark | 12 0x00 bytes, 3 0xA1 bytes with a missing clock pulse as described later, 0xFE |
+| Cylinder/Track Number | 1 byte, starting from 0x00 |
+| Side Number | 1 byte, 0x00 or 0x01 |
+| Sector Number | 1 byte, starting from 0x01 |
+| Sector Size | 1 byte, typically 0x02, see below |
+| Error Detection Characters | 2 byte, generated starting from the A1 bytes and ending with the sector size |
+
+#### Identifier Mark
+
+After a series of null bytes the Identifier mark has 3 A1 bytes that are missing a clock pulse.
+
+Normally A1 would be encoded as such
+
+| Data   |   |   1   |   |   0   |   |   1   |   |   0   |   |   0   |   |   0   |   |   0   |   |   1   |   |
+| ---    | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Clock  | 0 |       | 0 |       | 0 |       | 0 |       | 1 |       | 1 |       | 1 |       | 0 |       | 0 |
+| Result | 0 | **1** | 0 | **0** | 0 | **1** | 0 | **0** | 1 | **0** | 1 | **0** | 1 | **0** | 0 | **1** | 0 |
+
+![A diagram showing how the byte 0xA1 is normally stored with MFM Encoding](MFM_NormalA1.svg)
+
+but for these Identifier marks they are encoded like this 
+
+| Data   |   |   1   |   |   0   |   |   1   |   |   0   |   |   0   |   |   0   |   |   0   |   |   1   |   |
+| ---    | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Clock  | 0 |       | 0 |       | 0 |       | 0 |       | 1 |       | 0 |       | 1 |       | 0 |       | 0 |
+| Result | 0 | **1** | 0 | **0** | 0 | **1** | 0 | **0** | 1 | **0** | 0 | **0** | 1 | **0** | 0 | **1** | 0 |
+
+![A diagram showing how the byte 0xA1 is stored as part of an Identifier mark with MFM Encoding](MFM_IdentifierA1.svg)
+
+It's encoded without the clock pulse between bit 3 and bit 4 (counting from bit 1 on the right). This is used to help orient the controller
+so that it knows which bits are the clock pulses and so it knows that some information is coming up.
+
+Note that it's these malformed A1 bytes that aren't allowed in the index gap as they could confuse the controller.
+
+The FE byte indicates that this is the Sector Identifier.
+
+#### Sector Size
+
+This byte encodes the sector size as follows
+
+| Value | Size |
+| --- | --- |
+| 0x00 | 128 bytes |
+| 0x01 | 256 bytes |
+| 0x02 | 512 bytes |
+| 0x03 | 1024 bytes |
+
+For PC disks this is typically 0x02 or 512 bytes
+
+### Data Block
+
+The Data Block contains the sector data as follows
+
+| Part | Description |
+| --- | --- |
+| Data Mark | 12 0x00 bytes, 3 0xA1 bytes with a missing clock pulse as described earlier, 0xFB |
+| Data | The sector data, the number of bytes is based on the size byte in the identifier but typically 512 |
+| Error Detection Characters | 2 byte, generated starting from the A1 bytes and ending with the last data byte |
+
+#### Identifier Mark
+
+After a series of null bytes the Identifier mark has 3 A1 bytes that are missing a clock pulse like those in the Idenntnfier mark.
+
+The FB byte indicates that this is the Data Block.
+
+## Error Correction
+
+Both the Sector Identifier and Data Block contain Error Detection Characters, EDC, that help to detect errors.
+
+These bytes are calculated by processing the information in the Sector Identifier and Data Block and then get stored after for future
+comparison
+
+These bytes are calculated using CRC-16/CCITT-FALSE, that is a 16 bit Cyclic redundancy check using the polynomial x<sup>16</sup> + x<sup>12</sup> + x<sup>5</sup> + 1
+
+This is typically implemented using shift register with feedback connections.
+
+The 16-bit error correction register is initialized to 0xFF. The incoming bit is exclusive-ored (xor'd, true if both inputs are different) with the contents
+of bit 15 (counting from 0). The result of this operation is xor'd with bit 4 and bit 11. All of the bits are shifted up 1 and the result of the first operation is
+stored in bit 0. So the modified bit 4 becomes bit 5 and the modified bit 11 becomes bit 12.
+
+For example, reading in the A1 byte from the identifier or data mark (01000100100010010)
+
+We start with the EDC register = 0xFF
+
+```
+start - 1111 1111 1111 1111
+        -    -       -
+```
+
+The first bit read is a 0 and c15 is 1 so 1 xor 0 = 1
+```
+b0 = 0, Feedback = 1
+```
+
+c11 = 1, 1 xor 1 = 0, c4 = 1, 1 xor 1 = 0
+
+```
+c11 = 0, c4 = 0, 
+```
+
+That gives us a value of
+
+```
+after = 1111 0111 1110 1111
+```
+
+We then shift the value left to get
+
+```
+shift = 1110 1111 1101 1111
+```
+
+and then continue for the rest of the bits
+
+```
+b1 = 1, feedback = 0
+c4 = 1, c11 = 1
+after = 0110 1111 1101 1111
+        -    -       -
+shift = 1101 1111 1011 1110
+b2 = 0, feedback = 1
+c11 = 0, c4 = 0
+after = 1101 0111 1010 1110
+        -    -       -
+shift = 1010 1111 0101 1101
+b3 = 0, feedback = 1
+c11 = 0, c4 = 0
+after = 1010 0111 0100 1101
+        -    -       -
+shift = 0100 1110 1001 1011
+b4 = 0, feedback = 0
+c11 = 1, c4 = 1
+after = 0100 1110 1001 1011
+        -    -       -
+shift = 1001 1101 0011 0110
+b5 = 1, feedback = 0
+c11 = 1, c4 = 1
+after = 0001 1101 0011 0110
+        -    -       -
+shift = 0011 1010 0110 1100
+b6 = 0, feedback = 0
+c11 = 1, c4 = 0
+after = 0011 1010 0110 1100
+        -    -       -
+shift = 0111 0100 1101 1000
+b7 = 0, feedback = 0
+c11 = 0, c4 = 1
+after = 0111 0100 1101 1000
+        -    -       -
+shift = 1110 1001 1011 0000
+b8 = 1, feedback = 0
+c11 = 1, c4 = 1
+after = 0110 1001 1011 0000
+        -    -       -
+shift = 1101 0011 0110 0000
+b9 = 0, feedback = 1
+c11 = 1, c4 = 1
+after = 1101 1011 0111 0000
+        -    -       -
+shift = 1011 0110 1110 0001
+b10 = 0, feedback = 1
+c11 = 1, c4 = 1
+after = 1011 1110 1111 0001
+        -    -       -
+shift = 0111 1101 1110 0011
+b11 = 0, feedback = 0
+c11 = 1, c4 = 0
+after = 0111 1101 1110 0011
+        -    -       -
+shift = 1111 1011 1100 0110
+b12 = 1, feedback = 0
+c11 = 1, c4 = 0
+after = 0111 1011 1100 0110
+        -    -       -
+shift = 1111 0111 1000 1100
+b13 = 0, feedback = 1
+c11 = 1, c4 = 1
+after = 1111 1111 1001 1100
+        -    -       -
+shift = 1111 1111 0011 1001
+b14 = 0, feedback = 1
+c11 = 0, c4 = 0
+after = 1111 0111 0010 1001
+        -    -       -
+shift = 1110 1110 0101 0011
+b15 = 1, feedback = 0
+c11 = 1, c4 = 1
+after = 0110 1110 0101 0011
+        -    -       -
+shift = 1101 1100 1010 0110
+b16 = 0, feedback = 1
+c11 = 0, c4 = 1, 
+after = 1101 0100 1011 0110
+        -    -       -
+shift = 1010 1001 0110 1101
+```
+
+And our result is 0xA96D
 
 [docs-fm]: FM.md
 
