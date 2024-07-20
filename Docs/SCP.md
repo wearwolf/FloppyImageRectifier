@@ -26,7 +26,7 @@ The following Disk types are defined. The high-order nibble is used to encode a 
 extra information
 
 | Disk Type | Value |
-| --- | | :---: |
+| --- | :---: |
 | disk_C64 | 0x00 |
 | disk_Amiga | 0x04 |
 | disk_AmigaHD | 0x08 |
@@ -68,7 +68,7 @@ extra information
 These flags indicate information about the image or how it was saved
 
 | Name | Value | Description |
-| --- | | :---: | |
+| --- | :---: |
 | IndexQueued | 0x1 | 1 to indicate reader starting at the index pulse, 0 for a random location |
 | Tpi96 | 0x2 | 1 to indicate 96 TPI (80 Tracks), 0 to indicate 48 TPI (40 Tracks) |
 | Rpm360 | 0x4 | 1 to indicate 360 RPM (1.2M Disks), 0 to indicate 300 RPM (others) |
@@ -91,7 +91,7 @@ Note that this is using bit cell in a different way than the standard as this re
 This field indicates which heads were used when reading the disk
 
 | Name | Value | Description |
-| --- | | :---: | --- |
+| --- | :---: | --- |
 | Both | 0x00 | Both sides of the disk were read |
 | Side0 | 0x01 | Only side 0 (bottom) was read, even tracks only |
 | Side1 | 0x02 | Only side 1 (top) was read, odd tracks only |
