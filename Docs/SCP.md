@@ -160,7 +160,7 @@ The last 48 bytes of the file contain offsets to strings and other data. These s
 | VERSION/SUBVERSION OF APPLICATION THAT CREATED IMAGE | 1 | The high-order nibble contains the Version of the application and the lower order nibble contains the sub-version |
 | VERSION/SUBVERSION OF SUPERCARD PRO HARDWARE | 1 | The high-order nibble contains the Version of the SCP Hardware and the lower order nibble contains the sub-version |
 | VERSION/SUBVERSION OF SUPERCARD PRO FIRMWARE | 1 | The high-order nibble contains the Version of the SCP Firmware and the lower order nibble contains the sub-version |
-| VERSION/SUBVERSION OF THIS IMAGE FORMAT | 1 | | The high-order nibble contains the Version of the Image Format and the lower order nibble contains the sub-version |
+| VERSION/SUBVERSION OF THIS IMAGE FORMAT | 1 | The high-order nibble contains the Version of the Image Format and the lower order nibble contains the sub-version |
 | Signature | 4 | The string 'FPCS' |
 
 [scp-spec]: https://www.cbmstuff.com/downloads/scp/scp_image_specs.txt
