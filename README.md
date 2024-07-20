@@ -10,7 +10,7 @@ Note that this tool is designed for use with PC floppy types as that is what I a
 The tool takes one or more paths and a type identifier. 
 
 ```
-FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <diskTypeIdentifier>
+FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <Disk-Type-Identifier [-output <Path-to-Output-File>]>
 ```
 
 \<Path-to-SCP-File> - A path to an SCP file, will always be an input file if provided, may be an output file
@@ -19,7 +19,9 @@ FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <P
 
 \<Path-to-IMG-file> - A path to an IMG file, may be input or output depending on other options provided
 
-\<diskTypeIdentifier> - Defines the type of floppy disk
+\<Disk-Type-Identifier> - Defines the type of floppy disk
+
+\<Path-to-Output-File> - Optional, if specified then some program output will also be written to the specified file
 
 The operation performed depends on the arguments specified
 
