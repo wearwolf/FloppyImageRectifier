@@ -11,6 +11,7 @@ Module Program
         Dim hfeFilePath = String.Empty
         Dim imgFilePath = String.Empty
         Dim diskType = FloppyDiskType.Unknown
+        Dim outputPath = String.Empty
         For i = 0 To args.Length - 1
             Select Case args(i)
                 Case "-scp"
@@ -54,27 +55,37 @@ Module Program
                         End If
                         i = i + 1
                     End If
+                Case "-output"
+                    If args.Length <= i + 1 Then
+                        Console.WriteLine("missing value for output argument")
+                        Ussage()
+                        Exit Sub
+                    Else
+                        outputPath = args(i + 1)
+                        i = i + 1
+                    End If
             End Select
         Next
 
-        If Not String.IsNullOrEmpty(scpFilePath) AndAlso (Not String.IsNullOrEmpty(hfeFilePath) OrElse Not String.IsNullOrEmpty(imgFilePath)) Then
-            ConvertScp(scpFilePath, hfeFilePath, imgFilePath, diskType)
-        ElseIf Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(imgFilePath) Then
-            ConvertHfe(hfeFilePath, imgFilePath, diskType)
-        ElseIf Not String.IsNullOrEmpty(scpFilePath) Then
-            DisplayScp(scpFilePath)
-        ElseIf Not String.IsNullOrEmpty(hfeFilePath) Then
-            DisplayHfe(hfeFilePath)
-        ElseIf Not String.IsNullOrEmpty(imgFilePath) Then
-            DisplayImg(imgFilePath)
-        Else
-            Console.WriteLine("Missing required argument")
-            Ussage()
-        End If
-
+        Using outputWriter = New OutputWriter(outputPath)
+            If Not String.IsNullOrEmpty(scpFilePath) AndAlso (Not String.IsNullOrEmpty(hfeFilePath) OrElse Not String.IsNullOrEmpty(imgFilePath)) Then
+                ConvertScp(scpFilePath, hfeFilePath, imgFilePath, diskType, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(imgFilePath) Then
+                ConvertHfe(hfeFilePath, imgFilePath, diskType, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(scpFilePath) Then
+                DisplayScp(scpFilePath, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(hfeFilePath) Then
+                DisplayHfe(hfeFilePath, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(imgFilePath) Then
+                DisplayImg(imgFilePath, outputWriter)
+            Else
+                Console.WriteLine("Missing required argument")
+                Ussage()
+            End If
+        End Using
     End Sub
 
-    Sub ConvertScp(scpFilePath As String, hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType)
+    Sub ConvertScp(scpFilePath As String, hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, outputWriter As OutputWriter)
         If diskType = FloppyDiskType.Unknown Then
             Console.WriteLine("Missing disk type argument")
             Ussage()
@@ -84,7 +95,7 @@ Module Program
         Console.WriteLine("Converting SCP to HFE and/or IMG")
     End Sub
 
-    Sub ConvertHfe(hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType)
+    Sub ConvertHfe(hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, outputWriter As OutputWriter)
         If diskType = FloppyDiskType.Unknown Then
             Console.WriteLine("Missing disk type argument")
             Ussage()
@@ -94,24 +105,28 @@ Module Program
         Console.WriteLine("Converting HFE to IMG")
     End Sub
 
-    Sub DisplayScp(scpFilePath As String)
-        Console.WriteLine("Displaying SCP information")
+    Sub DisplayScp(scpFilePath As String, outputWriter As OutputWriter)
+        Console.WriteLine($"Reading SCP file {scpFilePath}")
+        Dim scpFile = New ScpFile(scpFilePath)
+        scpFile.Read()
+        scpFile.WriteOutput(outputWriter)
     End Sub
 
-    Sub DisplayHfe(hfeFilePath As String)
+    Sub DisplayHfe(hfeFilePath As String, outputWriter As OutputWriter)
         Console.WriteLine("Displaying HFE information")
     End Sub
 
-    Sub DisplayImg(imgFilePath As String)
+    Sub DisplayImg(imgFilePath As String, outputWriter As OutputWriter)
         Console.WriteLine("Displaying IMG information")
     End Sub
 
     Sub Ussage()
-        Console.WriteLine("FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <diskTypeIdentifier>")
+        Console.WriteLine("FloppyImageRectifier.exe -scp <Path-to-SCP-File> -hfe <Path-to-HFE-File> -img <Path-to-IMG-File> -type <disk-Type-Identifier> [-output <path-to-file>]")
         Console.WriteLine("<Path-to-SCP-File> - A path to an SCP file, will always be an input file if provided, may be an output file")
         Console.WriteLine("<Path-to-HFE-File> - A path to an HFE file, may be input Or output depending on other options provided")
         Console.WriteLine("<Path-to-IMG-file> - A path to an IMG file, may be input Or output depending on other options provided")
-        Console.WriteLine("<diskTypeIdentifier> - Defines the type of floppy disk")
+        Console.WriteLine("<disk-Type-Identifier> - Defines the type of floppy disk")
+        Console.WriteLine("<path-to-file> - Optional, path to a file where some output will be mirrored")
         Console.WriteLine("'PC_MFM_525_360' 5.25"" 320k/360k MFM encoded disk for an IBM PC")
         Console.WriteLine("'PC_MFM_525_1200' 5.25"" 1200k disk MFM encoded for an IBM PC")
         Console.WriteLine("'PC_MFM_35_720' 3.5"" 720k disk MFM encoded for an IBM PC")
