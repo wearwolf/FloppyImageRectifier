@@ -68,7 +68,7 @@ extra information
 These flags indicate information about the image or how it was saved
 
 | Name | Value | Description |
-| --- | :---: |
+| --- | :---: | --- |
 | IndexQueued | 0x1 | 1 to indicate reader starting at the index pulse, 0 for a random location |
 | Tpi96 | 0x2 | 1 to indicate 96 TPI (80 Tracks), 0 to indicate 48 TPI (40 Tracks) |
 | Rpm360 | 0x4 | 1 to indicate 360 RPM (1.2M Disks), 0 to indicate 300 RPM (others) |
