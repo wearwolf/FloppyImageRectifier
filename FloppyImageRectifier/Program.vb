@@ -113,7 +113,10 @@ Module Program
     End Sub
 
     Sub DisplayHfe(hfeFilePath As String, outputWriter As OutputWriter)
-        Console.WriteLine("Displaying HFE information")
+        Console.WriteLine($"Reading HFE file {hfeFilePath}")
+        Dim hfeFile = New HfeFile(hfeFilePath)
+        hfeFile.Read()
+        hfeFile.WriteOutput(outputWriter)
     End Sub
 
     Sub DisplayImg(imgFilePath As String, outputWriter As OutputWriter)
