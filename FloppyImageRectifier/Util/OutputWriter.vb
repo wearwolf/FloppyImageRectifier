@@ -25,7 +25,7 @@ Public Class OutputWriter
 
     Public Sub New(outputPath As String)
         If Not String.IsNullOrEmpty(outputPath) Then
-            m_file = New StreamWriter(outputPath)
+            m_file = New StreamWriter(outputPath, append:=False, Encoding.Latin1)
         End If
     End Sub
 

@@ -1,7 +1,10 @@
 Imports System
+Imports System.Text
 
 Module Program
     Sub Main(args As String())
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
+
         If args.Length < 1 OrElse args.Length > 8 Then
             Ussage()
             Return
@@ -120,7 +123,10 @@ Module Program
     End Sub
 
     Sub DisplayImg(imgFilePath As String, outputWriter As OutputWriter)
-        Console.WriteLine("Displaying IMG information")
+        Console.WriteLine($"Reading IMG file {imgFilePath}")
+        Dim imgFile = New ImgFile(imgFilePath)
+        imgFile.Read()
+        imgFile.WriteOutput(outputWriter)
     End Sub
 
     Sub Ussage()
