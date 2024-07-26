@@ -1,4 +1,4 @@
-# SCP Image Format
+# HFE Image Format
 
 The following is based off of the [HFE file format spec][hfe-spec] with some alterations and additions based on my experience with the format.
 
