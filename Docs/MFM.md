@@ -28,7 +28,7 @@ be a 1, if the next bit is a 1 then the clock bit would be a 0.
 
 The following diagram shows how this data would be recorded on a magnetic medium
 
-![A diagram showing how the byte 11010010 is stored with MFM Encoding](Diagrams/MFM_Data.svg)
+![A diagram showing how the byte 11010010 is stored with MFM Encoding](diagrams/MFM_Data.svg)
 
 The bitcells are represented by the alternating light and dark grey backgrounds. The values of the data bits are along the top and the
 value of the clock bits are allow the bottom. The blue line going along the diagram represents the polarity of the magnetic substance.
@@ -146,7 +146,7 @@ Normally A1 would be encoded as such
 
 Or in diagram form
 
-![A diagram showing how the byte 0xA1 is normally stored with MFM Encoding](Diagrams/MFM_NormalA1.svg)
+![A diagram showing how the byte 0xA1 is normally stored with MFM Encoding](diagrams/MFM_NormalA1.svg)
 
 but for these Identifier marks they are encoded like this 
 
@@ -157,7 +157,7 @@ but for these Identifier marks they are encoded like this
 
 Or
 
-![A diagram showing how the byte 0xA1 is stored as part of an Identifier mark with MFM Encoding](Diagrams/MFM_IdentifierA1.svg)
+![A diagram showing how the byte 0xA1 is stored as part of an Identifier mark with MFM Encoding](diagrams/MFM_IdentifierA1.svg)
 
 There's a missing clock pulse between bit 3 and bit 4 (counting from bit 1 on the right). There should be a flux transition here because
 it's encoding a series of 0 data bits but one is missing. This is used to tell the controller that an Identifier or Data block is coming
