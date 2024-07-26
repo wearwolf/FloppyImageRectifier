@@ -2,7 +2,6 @@
 
 Public Class ScpFile
     Private Const MAX_TRACK_NUMBER = 167
-    Private Const FOOTER_LENGTH = 48
 
     Public Property FilePath As String
     Public Property Header As ScpHeader
