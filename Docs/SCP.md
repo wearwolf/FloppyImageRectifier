@@ -2,6 +2,8 @@
 
 The following is based off of the [SCP image spec][scp-spec] with some alterations and additions based on my experience with the format.
 
+This file contains the flux transition timings of a floppy disk
+
 ## Header
 
 | Name | Size (bytes) | Description |
@@ -106,6 +108,8 @@ the timing information represents 25 ns increments. Values other than 0 represen
 
 After the header is a series of 32-bit integer values indicating the location of each tracks header in the file
 
+The value is in little endian
+
 The track offsets are always stored sequentially starting with 0 and going up to a maximum of 167
 
 Valid entries are based on the StartTrack and EndTrack values in the header
@@ -130,6 +134,8 @@ This is followed by a series of revolution entries, the number of entries is bas
 | INDEX TIME | 4 | Timing information for a full revolution in 25ns increments |
 | TRACK LENGTH | 4 | The number of time entries for the track |
 | DATA OFFSET | 4 | The offset to the time entries for this track relative to the start of the track header |
+
+The value is in little endian
 
 At the specified Data Offset for each revolution will be a a series of values. The size of these values depends on the BitCellWidth value
 in the header but is typically 16 bits.
