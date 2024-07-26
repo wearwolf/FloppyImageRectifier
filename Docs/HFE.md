@@ -2,7 +2,7 @@
 
 The following is based off of the [HFE file format spec][hfe-spec] with some alterations and additions based on my experience with the format.
 
-This file contains the decoded binary data of a floppy disk
+This file contains the decoded binary information of a floppy disk
 
 ## Header
 
