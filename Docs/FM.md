@@ -23,7 +23,7 @@ For an example lets consider the byte 11010010. To encode this we simply insert 
 
 The following diagram shows how this data would be recorded on a magnetic medium
 
-![A diagram showing how the byte 11010010 is stored with FM Encoding](FM_Data.svg)
+![A diagram showing how the byte 11010010 is stored with FM Encoding](Diagrams/FM_Data.svg)
 
 The bitcells are represented by the alternating light and dark grey backgrounds. The values of the data bits are along the top and the
 value of the clock bits are allow the bottom. The blue line going along the diagram represents the polarity of the magnetic substance.
