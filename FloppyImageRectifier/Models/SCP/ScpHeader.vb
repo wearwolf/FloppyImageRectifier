@@ -41,7 +41,7 @@ Public Class ScpHeader
     End Sub
 
     Public Sub Write(binWriter As BinaryWriter)
-        binWriter.Write(Signature)
+        binWriter.Write(Signature.ToCharArray())
         binWriter.Write(VersionRevision)
         binWriter.Write(DiskType)
         binWriter.Write(NumberOfRevolutionsPerTrack)

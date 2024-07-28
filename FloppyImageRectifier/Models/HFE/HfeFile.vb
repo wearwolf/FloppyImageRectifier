@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Text
 
 Public Class HfeFile
     Public Const BLOCK_LENGTH = 512
@@ -16,7 +17,7 @@ Public Class HfeFile
 
     Public Sub Read()
         Using fstream = File.OpenRead(FilePath)
-            Using binReader = New BinaryReader(fstream)
+            Using binReader = New BinaryReader(fstream, Encoding.Latin1)
                 Header = New HfeHeader()
                 Header.Read(binReader)
 
@@ -38,7 +39,7 @@ Public Class HfeFile
 
     Public Sub Write()
         Using fstream = File.Create(FilePath)
-            Using binWriter = New BinaryWriter(fstream)
+            Using binWriter = New BinaryWriter(fstream, Encoding.Latin1)
                 Header.Write(binWriter)
 
                 fstream.Seek(BLOCK_LENGTH, SeekOrigin.Begin)

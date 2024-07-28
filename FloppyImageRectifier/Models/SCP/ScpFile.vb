@@ -1,7 +1,8 @@
 ﻿Imports System.IO
+Imports System.Text
 
 Public Class ScpFile
-    Private Const MAX_TRACK_NUMBER = 167
+    Public Const MAX_TRACK_NUMBER = 167
 
     Public Property FilePath As String
     Public Property Header As ScpHeader
@@ -17,7 +18,7 @@ Public Class ScpFile
 
     Public Sub Read()
         Using fstream = File.OpenRead(FilePath)
-            Using binReader = New BinaryReader(fstream)
+            Using binReader = New BinaryReader(fstream, Encoding.Latin1)
                 Header = New ScpHeader()
                 Header.Read(binReader)
 
@@ -48,8 +49,8 @@ Public Class ScpFile
     End Sub
 
     Public Sub Write()
-        Using fstream = File.OpenWrite(FilePath)
-            Using BinaryWriter = New BinaryWriter(fstream)
+        Using fstream = File.Open(FilePath, FileMode.Open, FileAccess.ReadWrite)
+            Using BinaryWriter = New BinaryWriter(fstream, Encoding.Latin1)
                 ' Only the header is written because that's the only part that should be changed
                 Header.Write(BinaryWriter)
             End Using
@@ -72,4 +73,33 @@ Public Class ScpFile
         Footer.WriteOutput(outputWriter)
     End Sub
 
+    Friend Sub UpdateDiskType(diskType As FloppyDiskType)
+        If (Header.DiskType = ScpDiskType.disk_360) Then ' Default for GW
+            Select Case (diskType)
+                Case FloppyDiskType.PC_MFM_525_360
+                    Header.DiskType = ScpDiskType.disk_PC360K
+                Case FloppyDiskType.PC_MFM_525_1200
+                    Header.DiskType = ScpDiskType.disk_PC12M
+                Case FloppyDiskType.PC_MFM_35_720
+                    Header.DiskType = ScpDiskType.disk_PC720K
+                Case FloppyDiskType.PC_MFM_35_1440
+                    Header.DiskType = ScpDiskType.disk_PC144M
+            End Select
+        End If
+
+        Select Case (diskType)
+            Case FloppyDiskType.PC_MFM_525_360
+                Header.Flags = Header.Flags And Not ScpImageFlags.Tpi96
+                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
+            Case FloppyDiskType.PC_MFM_525_1200
+                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
+                Header.Flags = Header.Flags Or ScpImageFlags.Rpm360
+            Case FloppyDiskType.PC_MFM_35_720
+                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
+                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
+            Case FloppyDiskType.PC_MFM_35_1440
+                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
+                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
+        End Select
+    End Sub
 End Class

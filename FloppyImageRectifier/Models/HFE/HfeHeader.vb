@@ -1,8 +1,9 @@
 ﻿Imports System.IO
 
 Public Class HfeHeader
+    Public Const EXPECTED_SIGNATURE = "HXCPICFE"
+
     Private Const SIGNATURE_LENGTH = 8
-    Private Const EXPECTED_SIGNATURE = "HXCPICFE"
     Private Const HEADER_LENGTH = 26
 
     Public Property Signature As String

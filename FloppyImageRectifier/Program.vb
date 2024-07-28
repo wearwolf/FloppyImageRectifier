@@ -1,11 +1,13 @@
 Imports System
+Imports System.IO
 Imports System.Text
 
 Module Program
     Sub Main(args As String())
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
 
-        If args.Length < 1 OrElse args.Length > 8 Then
+        If args.Length < 1 OrElse args.Length > 10 Then
+            Console.WriteLine($"Unexpected number of arguments {args.Length}")
             Ussage()
             Return
         End If
@@ -95,7 +97,57 @@ Module Program
             Exit Sub
         End If
 
-        Console.WriteLine("Converting SCP to HFE and/or IMG")
+        If Not File.Exists(scpFilePath) Then
+            Console.WriteLine($"Unable to find SCP file: {scpFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading SCP file: {scpFilePath}")
+        Dim scpFile = New ScpFile(scpFilePath)
+        scpFile.Read()
+
+        Console.WriteLine($"Decoding SCP file")
+        Dim scpDecoder = New ScpDecoder(scpFile)
+        Dim mfmFile = scpDecoder.DecodeMfm(diskType)
+        mfmFile.CheckChecksums(outputWriter)
+
+        Console.WriteLine($"Writing SCP file: {scpFilePath}")
+        scpFile.UpdateDiskType(diskType)
+        scpFile.Write()
+
+        If Not String.IsNullOrEmpty(hfeFilePath) Then
+            If File.Exists(hfeFilePath) Then
+                Console.WriteLine($"HFE file '{hfeFilePath}' already exists, do you want to overwrite it? (y/n)")
+
+                Dim result = Console.Read()
+                If result <> AscW("y"c) AndAlso result <> AscW("Y"c) Then
+                    Return
+                End If
+            End If
+
+            Console.WriteLine($"Writing HFE file: {hfeFilePath}")
+            Dim hfeFile = New HfeFile(hfeFilePath)
+            Dim hfeEncoder = New HfeEncoder(hfeFile, mfmFile)
+            hfeEncoder.Encode()
+            hfeFile.Write()
+        End If
+
+        If Not String.IsNullOrEmpty(imgFilePath) Then
+            If File.Exists(imgFilePath) Then
+            Console.WriteLine($"IMG file '{imgFilePath}' already exists, do you want to overwrite it? (y/n)")
+
+            Dim result = Console.Read()
+            If result <> AscW("y"c) AndAlso result <> AscW("Y"c) Then
+                Return
+            End If
+        End If
+
+            Console.WriteLine($"Writing IMG file: {imgFilePath}")
+            Dim imgFile = New ImgFile(imgFilePath)
+            Dim imgEncoder = New ImgEncoder(imgFile, mfmFile)
+            imgEncoder.Encode()
+            imgFile.Write()
+        End If
     End Sub
 
     Sub ConvertHfe(hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, outputWriter As OutputWriter)
@@ -105,25 +157,67 @@ Module Program
             Exit Sub
         End If
 
-        Console.WriteLine("Converting HFE to IMG")
+        If Not File.Exists(hfeFilePath) Then
+            Console.WriteLine($"Unable to find HFE file: {hfeFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading HFE file: {hfeFilePath}")
+        Dim hfeFile = New HfeFile(hfeFilePath)
+        hfeFile.Read()
+
+        Console.WriteLine($"Decoding HFE file")
+        Dim hfeDecoder = New HfeDecoder(hfeFile)
+        Dim mfmFile = hfeDecoder.DecodeMfm(diskType)
+        mfmFile.CheckChecksums(outputWriter)
+
+        If File.Exists(imgFilePath) Then
+            Console.WriteLine($"IMG file '{imgFilePath}' already exists, do you want to overwrite it? (y/n)")
+
+            Dim result = Console.Read()
+            If result <> AscW("y"c) AndAlso result <> AscW("Y"c) Then
+                Return
+            End If
+        End If
+
+        Console.WriteLine($"Writing IMG file: {imgFilePath}")
+        Dim imgFile = New ImgFile(imgFilePath)
+        Dim imgEncoder = New ImgEncoder(imgFile, mfmFile)
+        imgEncoder.Encode()
+        imgFile.Write()
     End Sub
 
     Sub DisplayScp(scpFilePath As String, outputWriter As OutputWriter)
-        Console.WriteLine($"Reading SCP file {scpFilePath}")
+        If Not File.Exists(scpFilePath) Then
+            Console.WriteLine($"Unable to find SCP file: {scpFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading SCP file: {scpFilePath}")
         Dim scpFile = New ScpFile(scpFilePath)
         scpFile.Read()
         scpFile.WriteOutput(outputWriter)
     End Sub
 
     Sub DisplayHfe(hfeFilePath As String, outputWriter As OutputWriter)
-        Console.WriteLine($"Reading HFE file {hfeFilePath}")
+        If Not File.Exists(hfeFilePath) Then
+            Console.WriteLine($"Unable to find HFE file: {hfeFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading HFE file: {hfeFilePath}")
         Dim hfeFile = New HfeFile(hfeFilePath)
         hfeFile.Read()
         hfeFile.WriteOutput(outputWriter)
     End Sub
 
     Sub DisplayImg(imgFilePath As String, outputWriter As OutputWriter)
-        Console.WriteLine($"Reading IMG file {imgFilePath}")
+        If Not File.Exists(imgFilePath) Then
+            Console.WriteLine($"Unable to find IMG file: {imgFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading IMG file: {imgFilePath}")
         Dim imgFile = New ImgFile(imgFilePath)
         imgFile.Read()
         imgFile.WriteOutput(outputWriter)
