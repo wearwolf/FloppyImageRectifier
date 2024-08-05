@@ -115,38 +115,46 @@ Module Program
         scpFile.UpdateDiskType(diskType)
         scpFile.Write()
 
+        Dim writeHfe = True
         If Not String.IsNullOrEmpty(hfeFilePath) Then
             If File.Exists(hfeFilePath) Then
+                writeHfe = False
                 Console.WriteLine($"HFE file '{hfeFilePath}' already exists, do you want to overwrite it? (y/n)")
 
                 Dim result = Console.ReadLine().First()
-                If result <> "y"c AndAlso result <> "Y"c Then
-                    Return
+                If result = "y"c OrElse result = "Y"c Then
+                    writeHfe = True
                 End If
             End If
 
-            Console.WriteLine($"Writing HFE file: {hfeFilePath}")
-            Dim hfeFile = New HfeFile(hfeFilePath)
-            Dim hfeEncoder = New HfeEncoder(hfeFile, mfmFile)
-            hfeEncoder.Encode()
-            hfeFile.Write()
+            If writeHfe Then
+                Console.WriteLine($"Writing HFE file: {hfeFilePath}")
+                Dim hfeFile = New HfeFile(hfeFilePath)
+                Dim hfeEncoder = New HfeEncoder(hfeFile, mfmFile)
+                hfeEncoder.Encode()
+                hfeFile.Write()
+            End If
         End If
 
+        Dim writeImg = True
         If Not String.IsNullOrEmpty(imgFilePath) Then
             If File.Exists(imgFilePath) Then
+                writeImg = False
                 Console.WriteLine($"IMG file '{imgFilePath}' already exists, do you want to overwrite it? (y/n)")
 
                 Dim result = Console.ReadLine().First()
-                If result <> "y"c AndAlso result <> "Y"c Then
-                    Return
+                If result = "y"c OrElse result = "Y"c Then
+                    writeImg = True
                 End If
             End If
 
-            Console.WriteLine($"Writing IMG file: {imgFilePath}")
-            Dim imgFile = New ImgFile(imgFilePath)
-            Dim imgEncoder = New ImgEncoder(imgFile, mfmFile)
-            imgEncoder.Encode()
-            imgFile.Write()
+            If writeImg Then
+                Console.WriteLine($"Writing IMG file: {imgFilePath}")
+                Dim imgFile = New ImgFile(imgFilePath)
+                Dim imgEncoder = New ImgEncoder(imgFile, mfmFile)
+                imgEncoder.Encode()
+                imgFile.Write()
+            End If
         End If
     End Sub
 
