@@ -25,13 +25,10 @@
 
     Private m_diskRpm As Integer
     Private m_diskBitcellLengthRad As Double
-    Private m_nominalBitcellTime As Double
     Private m_tickResolution As Double
 
     Private m_maxBitcellTime As Double
     Private m_minBitcellTime As Double
-
-    Private m_currentBitcellTime As Double
 
 #End Region
 
@@ -62,6 +59,24 @@
 
         m_currentBitcellTime = m_nominalBitcellTime
     End Sub
+
+#End Region
+
+#Region "Properties"
+
+    Private m_nominalBitcellTime As Double
+    Public ReadOnly Property NominalBitcellTime As Double
+        Get
+            Return m_nominalBitcellTime
+        End Get
+    End Property
+
+    Private m_currentBitcellTime As Double
+    Public ReadOnly Property CurrentBitcellTime As Double
+        Get
+            Return m_currentBitcellTime
+        End Get
+    End Property
 
 #End Region
 
