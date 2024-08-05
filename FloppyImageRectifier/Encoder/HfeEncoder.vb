@@ -1,13 +1,13 @@
 ﻿Public Class HfeEncoder
 
-    Private Const IBM_MFM_525_360_RPM = 300
-    Private Const IBM_MFM_525_360_BITRATE = 250
-    Private Const IBM_MFM_525_1200_RPM = 360
-    Private Const IBM_MFM_525_1200_BITRATE = 500
-    Private Const IBM_MFM_35_720_RPM = 300
-    Private Const IBM_MFM_35_720_BITRATE = 250
-    Private Const IBM_MFM_35_1440_RPM = 300
-    Private Const IBM_MFM_35_1440_BITRATE = 500
+    Private Const PC_MFM_525_360_RPM = 300
+    Private Const PC_MFM_525_360_BITRATE = 250
+    Private Const PC_MFM_525_1200_RPM = 360
+    Private Const PC_MFM_525_1200_BITRATE = 500
+    Private Const PC_MFM_35_720_RPM = 300
+    Private Const PC_MFM_35_720_BITRATE = 250
+    Private Const PC_MFM_35_1440_RPM = 300
+    Private Const PC_MFM_35_1440_BITRATE = 500
 
     Private m_hfeFile As HfeFile
     Private m_mfmImage As MfmImage
@@ -75,20 +75,20 @@
 
         Select Case (m_mfmImage.DiskType)
             Case FloppyDiskType.PC_MFM_525_360
-                header.FloppyRpm = IBM_MFM_525_360_RPM
-                header.BitRate = IBM_MFM_525_360_BITRATE
+                header.FloppyRpm = PC_MFM_525_360_RPM
+                header.BitRate = PC_MFM_525_360_BITRATE
                 header.FloppyInterfaceMode = HfeFloppyInterfaceMode.GENERIC_SHUGGART_DD_FLOPPYMODE
             Case FloppyDiskType.PC_MFM_525_1200
-                header.BitRate = IBM_MFM_525_1200_RPM
-                header.BitRate = IBM_MFM_525_1200_BITRATE
+                header.BitRate = PC_MFM_525_1200_RPM
+                header.BitRate = PC_MFM_525_1200_BITRATE
                 header.FloppyInterfaceMode = HfeFloppyInterfaceMode.GENERIC_SHUGGART_DD_FLOPPYMODE
             Case FloppyDiskType.PC_MFM_35_720
-                header.FloppyRpm = IBM_MFM_35_720_RPM
-                header.BitRate = IBM_MFM_35_720_BITRATE
+                header.FloppyRpm = PC_MFM_35_720_RPM
+                header.BitRate = PC_MFM_35_720_BITRATE
                 header.FloppyInterfaceMode = HfeFloppyInterfaceMode.IBMPC_DD_FLOPPYMODE
             Case FloppyDiskType.PC_MFM_35_1440
-                header.FloppyRpm = IBM_MFM_35_1440_RPM
-                header.BitRate = IBM_MFM_35_1440_BITRATE
+                header.FloppyRpm = PC_MFM_35_1440_RPM
+                header.BitRate = PC_MFM_35_1440_BITRATE
                 header.FloppyInterfaceMode = HfeFloppyInterfaceMode.IBMPC_HD_FLOPPYMODE
         End Select
 
