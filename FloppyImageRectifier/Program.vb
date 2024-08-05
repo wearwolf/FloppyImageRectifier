@@ -119,8 +119,8 @@ Module Program
             If File.Exists(hfeFilePath) Then
                 Console.WriteLine($"HFE file '{hfeFilePath}' already exists, do you want to overwrite it? (y/n)")
 
-                Dim result = Console.Read()
-                If result <> AscW("y"c) AndAlso result <> AscW("Y"c) Then
+                Dim result = Console.ReadLine().First()
+                If result <> "y"c AndAlso result <> "Y"c Then
                     Return
                 End If
             End If
@@ -134,13 +134,13 @@ Module Program
 
         If Not String.IsNullOrEmpty(imgFilePath) Then
             If File.Exists(imgFilePath) Then
-            Console.WriteLine($"IMG file '{imgFilePath}' already exists, do you want to overwrite it? (y/n)")
+                Console.WriteLine($"IMG file '{imgFilePath}' already exists, do you want to overwrite it? (y/n)")
 
-            Dim result = Console.Read()
-            If result <> AscW("y"c) AndAlso result <> AscW("Y"c) Then
-                Return
+                Dim result = Console.ReadLine().First()
+                If result <> "y"c AndAlso result <> "Y"c Then
+                    Return
+                End If
             End If
-        End If
 
             Console.WriteLine($"Writing IMG file: {imgFilePath}")
             Dim imgFile = New ImgFile(imgFilePath)
