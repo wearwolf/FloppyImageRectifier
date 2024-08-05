@@ -21,10 +21,14 @@
             End If
 
             Dim side0 = track.Side0Revolution
-            EncodeSide(side0, sectorNumber)
+            If side0 IsNot Nothing Then
+                EncodeSide(side0, sectorNumber)
+            End If
 
             Dim side1 = track.Side1Revolution
-            EncodeSide(side1, sectorNumber)
+            If side1 IsNot Nothing Then
+                EncodeSide(side1, sectorNumber)
+            End If
         Next
     End Sub
 

@@ -27,8 +27,8 @@
         filePosition += lutBlocks
 
         For Each track In m_mfmImage.Tracks
-            Dim side0TrackData = track.Side0Revolution.TrackData
-            Dim side1TrackData = track.Side1Revolution.TrackData
+            Dim side0TrackData = track.Side0Revolution?.TrackData
+            Dim side1TrackData = track.Side1Revolution?.TrackData
 
             Dim maxBitCount = Math.Max(side0TrackData.BitCount, side1TrackData.BitCount)
             Dim byteCount = CInt(Math.Ceiling(maxBitCount / 8))
@@ -44,8 +44,8 @@
 
             filePosition += blockCount
 
-            Dim side0Data = WrapTrackData(side0TrackData)
-            Dim side1Data = WrapTrackData(side1TrackData)
+            Dim side0Data = If(side0TrackData IsNot Nothing, WrapTrackData(side0TrackData), CreateEmptyTrackData(byteCount))
+            Dim side1Data = If(side1TrackData IsNot Nothing, WrapTrackData(side1TrackData), CreateEmptyTrackData(byteCount))
 
             Dim trackData = New HfeTrackData(trackOffset) With {
                 .Side0 = side0Data,
@@ -95,11 +95,22 @@
         Return header
     End Function
 
+    Private Function CreateEmptyTrackData(length As Integer) As List(Of Byte)
+        Dim totalByteCount = length + (HfeFile.BLOCK_LENGTH - length Mod (HfeFile.BLOCK_LENGTH / 2))
+
+        Dim bytes = New List(Of Byte)
+        For i = 0 To totalByteCount - 1
+            bytes.Add(0)
+        Next
+
+        Return bytes
+    End Function
+
     Private Function WrapTrackData(trackData As BitList) As List(Of Byte)
-        Dim remainingBits = trackData.BitCount Mod (HfeFile.BLOCK_LENGTH * 8 / 2)
+        Dim remainingBits = (HfeFile.BLOCK_LENGTH * 8 / 2) - (trackData.BitCount Mod (HfeFile.BLOCK_LENGTH * 8 / 2))
 
         trackData.ResetRead()
-        For i = 0 To remainingBits
+        For i = 0 To remainingBits - 1
             Dim bit = trackData.ReadBit()
             trackData.AddBit(bit)
         Next
