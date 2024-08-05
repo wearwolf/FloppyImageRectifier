@@ -19,4 +19,23 @@
             End If
         Next
     End Sub
+
+    Public Function IsValid() As Boolean
+        For Each sector In Sectors
+            If Not sector.SectorIdentifierChecksumValid Then
+                Return False
+            End If
+
+            If Not sector.DataChecksumValid Then
+                Return False
+            End If
+        Next
+
+        Return True
+    End Function
+
+    Public Function MatchPercentage(testRevolution As MfmTrackRevolution) As Double
+        Return TrackData.MatchPercentage(testRevolution.TrackData)
+    End Function
+
 End Class

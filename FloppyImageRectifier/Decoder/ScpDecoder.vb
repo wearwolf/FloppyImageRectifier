@@ -41,6 +41,62 @@
             mfmTrack.AddRevolution(decodedRevolution, side)
         Next
 
+        Dim revolutions = mfmTrack.GetRevolutions(side)
+        Dim revGroups = New Dictionary(Of Integer, Integer)(revolutions.Count)
+
+        For i = 0 To revolutions.Count - 1
+            revGroups(i) = i + 1
+        Next
+
+        For i = 1 To revolutions.Count
+            Dim index = revGroups.FirstOrDefault(Function(g) g.Value = i)
+            If index.Value = 0 Then
+                Continue For
+            End If
+            Dim baseRevolution = revolutions(index.Key)
+
+            For j = i To revolutions.Count - 1
+                If revGroups(j) <= i Then
+                    Continue For
+                End If
+
+                Dim testRevolution = revolutions(j)
+                Dim percentage = baseRevolution.MatchPercentage(testRevolution)
+                If percentage > 0.95 Then
+                    revGroups(j) = i
+                End If
+            Next
+        Next
+
+        Dim groupedGroups = revGroups.GroupBy(Function(g) g.Value)
+        Dim largestGroup = groupedGroups.Max(Function(g) g.Count)
+        Dim largeGroups = groupedGroups.Where(Function(g) g.Count = largestGroup)
+        If largeGroups.Count = 1 Then
+            Dim group = largeGroups(0)
+            If group.Count = 1 Then
+                Dim selectedIndex = group(0).Key
+                mfmTrack.SelectRevolution(selectedIndex, side)
+            Else
+                Dim validRevolutions = group.Where(Function(r) revolutions(r.Key).IsValid)
+                If validRevolutions.Count = 1 Then
+                    Dim selectedIndex = validRevolutions(0).Key
+                    mfmTrack.SelectRevolution(selectedIndex, side)
+                Else
+                    Dim selectedIndex = validRevolutions.Min(Function(g) g.Key)
+                    mfmTrack.SelectRevolution(selectedIndex, side)
+                End If
+            End If
+        Else
+            Dim validGroups = groupedGroups.Where(Function(g) g.Count = largestGroup AndAlso revolutions(g.First().Key).IsValid)
+            If validGroups.Count = 1 Then
+                Dim selectedIndex = validGroups(0).Min(Function(g) g.Key)
+                mfmTrack.SelectRevolution(selectedIndex, side)
+            Else
+                Dim selectedIndex = validGroups.Last().Min(Function(g) g.Key)
+                mfmTrack.SelectRevolution(selectedIndex, side)
+            End If
+        End If
+
         Return True
     End Function
 

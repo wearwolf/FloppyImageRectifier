@@ -39,6 +39,33 @@
         End If
     End Sub
 
+    Public Function GetRevolutions(side As Integer) As List(Of MfmTrackRevolution)
+        If side = 0 Then
+            Return Side0Revolutions
+        ElseIf side = 1 Then
+            Return Side1Revolutions
+        End If
+
+        Return Nothing
+    End Function
+
+    Public Sub SelectRevolution(index As Integer, side As Integer)
+        If side = 0 Then
+            If index < 0 OrElse index >= Side0Revolutions.Count Then
+                Throw New InvalidOperationException($"Unable to select revolution {index} for side {side}, valid indexes are 0 to {Side0Revolutions.Count - 1}")
+            End If
+
+            m_side0SelectedRevolution = index
+        ElseIf side = 1 Then
+            If index < 0 OrElse index >= Side1Revolutions.Count Then
+                Throw New InvalidOperationException($"Unable to select revolution {index} for side {side}, valid indexes are 0 to {Side1Revolutions.Count - 1}")
+            End If
+
+            m_side1SelectedRevolution = index
+        End If
+    End Sub
+
+
     Public Sub CheckChecksums(outputWriter As OutputWriter)
         Dim side0 = Side0Revolution
         If side0 IsNot Nothing Then
@@ -50,4 +77,18 @@
             side1.CheckRevolutionCheckSum(outputWriter)
         End If
     End Sub
+
+    Public Function IsValid() As Boolean
+        Dim side0 = Side0Revolution
+        If side0 IsNot Nothing AndAlso Not side0.IsValid() Then
+            Return False
+        End If
+
+        Dim side1 = Side1Revolution
+        If side1 IsNot Nothing AndAlso Not side1.IsValid() Then
+            Return False
+        End If
+
+        Return True
+    End Function
 End Class

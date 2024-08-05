@@ -129,6 +129,34 @@
         m_readByteBitIndex = 0
     End Sub
 
+
+    Friend Function MatchPercentage(testData As BitList) As Double
+        Dim matches = 0
+        Dim totalTransitions = 0
+
+        Me.ResetRead()
+        testData.ResetRead()
+        While Not Me.IsEof AndAlso Not testData.IsEof
+            Dim meZeroCount = 0
+            While Not Me.IsEof AndAlso Me.ReadBit() = False
+                meZeroCount += 1
+            End While
+
+            Dim testZeroCount = 0
+            While Not testData.IsEof AndAlso testData.ReadBit() = False
+                testZeroCount += 1
+            End While
+
+            If meZeroCount = testZeroCount Then
+                matches += 1
+            End If
+
+            totalTransitions += 1
+        End While
+
+        Return matches / totalTransitions
+    End Function
+
 #End Region
 
 End Class
