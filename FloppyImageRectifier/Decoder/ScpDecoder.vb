@@ -1,4 +1,6 @@
 ﻿Public Class ScpDecoder
+    Private Const TRACK_ADJUST_RANGE = 20
+
     Private m_scpFile As ScpFile
 
     Public Sub New(scpFile As ScpFile)
@@ -31,17 +33,70 @@
             Return False
         End If
 
+        ' Run through all the revolutions once to get the decoder timing synchronized
+
+        Dim timingList = New List(Of List(Of Long))
         Dim fluxDecoder = New MfmFluxDecoder(diskType, m_scpFile.Header.CaptureResolutionInSeconds)
+        'Console.WriteLine($"Nominal Bitcell Time: {fluxDecoder.NominalBitcellTime}")
         For Each revolution In scpTrack.TrackRevolutionData
             Dim timings = NormalizeTiming(revolution.TimeEntries)
+            timingList.Add(timings)
 
             Dim revolutionBitList = fluxDecoder.Decode(timings)
+            'Console.WriteLine($"Current Bitcell Time: {fluxDecoder.CurrentBitcellTime}")
+        Next
+
+        Dim revolutionBitLists = New List(Of BitList)
+        Dim completeReadBitList = New BitList()
+        For Each timings In timingList
+            Dim revolutionBitList = fluxDecoder.Decode(timings)
+            completeReadBitList.AddBitList(revolutionBitList)
+
+            revolutionBitLists.Add(revolutionBitList)
+            'Console.WriteLine($"Current Bitcell Time: {fluxDecoder.CurrentBitcellTime}")
+        Next
+
+        'Console.WriteLine($"Track Number: {mfmTrack.TrackNumber}, Side: {side}")
+
+        Dim currentIndex = 0
+        For i = 0 To revolutionBitLists.Count - 2
+            Dim revolutionBitList = revolutionBitLists(i)
+
+            If i > 0 Then
+                Dim slice = revolutionBitList.Slice(0, revolutionBitList.BitCount / 4)
+
+                Dim expectedIndex = currentIndex + revolutionBitList.BitCount
+                Dim nextIndex = completeReadBitList.Find(expectedIndex - TRACK_ADJUST_RANGE, expectedIndex + TRACK_ADJUST_RANGE, slice)
+                If nextIndex <> -1 Then
+                    Dim difference = nextIndex - expectedIndex
+                    If difference = 0 Then
+                        Continue For
+                    End If
+
+                    Dim nextRevolutionBitList = revolutionBitLists(i + 1)
+                    If difference > 0 Then
+                        'Console.WriteLine($"Move {difference} bits from start of revolution {i + 1} to end of revolution {i}")
+                        revolutionBitList.ShiftBitsFromStartOf(nextRevolutionBitList, difference)
+                    ElseIf difference < 0 Then
+                        difference = Math.Abs(difference)
+                        'Console.WriteLine($"Move {difference} bits from end of revolution {i} to start of revolution {i + 1}")
+                        revolutionBitList.ShiftBitsToStartOf(nextRevolutionBitList, difference)
+                    End If
+                End If
+            End If
+
+            currentIndex += revolutionBitList.BitCount
+        Next
+
+        Dim revolutions = New List(Of MfmTrackRevolution)
+        For Each revolutionBitList In revolutionBitLists
             Dim decoder = New MfmTrackRevolutionDecoder(revolutionBitList)
             Dim decodedRevolution = decoder.Decode()
+
+            revolutions.Add(decodedRevolution)
             mfmTrack.AddRevolution(decodedRevolution, side)
         Next
 
-        Dim revolutions = mfmTrack.GetRevolutions(side)
         Dim revGroups = New Dictionary(Of Integer, Integer)(revolutions.Count)
 
         For i = 0 To revolutions.Count - 1
@@ -49,7 +104,8 @@
         Next
 
         For i = 1 To revolutions.Count
-            Dim index = revGroups.FirstOrDefault(Function(g) g.Value = i)
+            Dim revolutionNumber = i
+            Dim index = revGroups.FirstOrDefault(Function(g) g.Value = revolutionNumber)
             If index.Value = 0 Then
                 Continue For
             End If
@@ -75,29 +131,48 @@
             Dim group = largeGroups(0)
             If group.Count = 1 Then
                 Dim selectedIndex = group(0).Key
+                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, only one in largest group")
                 mfmTrack.SelectRevolution(selectedIndex, side)
             Else
                 Dim validRevolutions = group.Where(Function(r) revolutions(r.Key).IsValid)
                 If validRevolutions.Count = 1 Then
                     Dim selectedIndex = validRevolutions(0).Key
+                    'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, only valid one in largest group")
+                    mfmTrack.SelectRevolution(selectedIndex, side)
+                ElseIf validRevolutions.Count = 0 Then
+                    Dim selectedIndex = group.OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
+                    'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in largest group")
                     mfmTrack.SelectRevolution(selectedIndex, side)
                 Else
-                    Dim selectedIndex = validRevolutions.Min(Function(g) g.Key)
+                    Dim selectedIndex = validRevolutions.OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
+                    ' Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle valid one in largest group")
                     mfmTrack.SelectRevolution(selectedIndex, side)
                 End If
             End If
         Else
             Dim validGroups = groupedGroups.Where(Function(g) g.Count = largestGroup AndAlso revolutions(g.First().Key).IsValid)
             If validGroups.Count = 1 Then
-                Dim selectedIndex = validGroups(0).Min(Function(g) g.Key)
+                Dim selectedIndex = validGroups(0).OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
+                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in largest valid group")
+                mfmTrack.SelectRevolution(selectedIndex, side)
+            ElseIf validGroups.Count = 0 Then
+                Dim selectedIndex = groupedGroups.Where(Function(g) g.Count = largestGroup).OrderByDescending(Function(g) DistanceToEnd(g.Key, groupedGroups.Count)).
+                    OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
+                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in middle largest group")
                 mfmTrack.SelectRevolution(selectedIndex, side)
             Else
-                Dim selectedIndex = validGroups.Last().Min(Function(g) g.Key)
+                Dim selectedIndex = validGroups.OrderByDescending(Function(g) DistanceToEnd(g.Key, groupedGroups.Count)).
+                    OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
+                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in middle largest valid group")
                 mfmTrack.SelectRevolution(selectedIndex, side)
             End If
         End If
 
         Return True
+    End Function
+
+    Private Function DistanceToEnd(i As Integer, count As Integer)
+        Return Math.Min(i, count - i - 1)
     End Function
 
     Private Function NormalizeTiming(timeEntries As List(Of UShort)) As List(Of Long)

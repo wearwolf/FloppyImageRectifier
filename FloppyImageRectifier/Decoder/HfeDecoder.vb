@@ -24,7 +24,7 @@
     End Function
 
     Private Shared Function DecodeSide(data As List(Of Byte), length As Integer) As MfmTrackRevolution
-        Dim bitList = New BitList(ByteBitReverser.ReverseBytes(data), length)
+        Dim bitList = New BitList(ByteBitReverser.ReverseBytes(data), length * 8)
         Dim decoder = New MfmTrackRevolutionDecoder(bitList)
         Dim revolution = decoder.Decode()
         Return revolution

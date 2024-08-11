@@ -9,7 +9,7 @@
     End Sub
 
     Public Sub Encode()
-        Dim maxTrack = 0
+        Dim maxTrack = 79
         If m_mfmImage.DiskType = FloppyDiskType.PC_MFM_525_360 Then
             maxTrack = 39
         End If

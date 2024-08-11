@@ -1,36 +1,51 @@
 ﻿Public Class MfmSector
 
-    Public ReadOnly SectorIdentifierBitIndex As Long
+    Public ReadOnly IdentStartBitIndex As Long
     Public ReadOnly TrackNumber As Byte
     Public ReadOnly SideNumber As Byte
     Public ReadOnly SectorNumber As Byte
     Public ReadOnly SectorSize As Integer
-    Public ReadOnly SectorIdentifierChecksum As UShort
-    Public ReadOnly SectorIdentifierCalculatedChecksum As UShort
+    Public ReadOnly IdentChecksum As UShort
+    Public ReadOnly IdentCalculatedChecksum As UShort
+    Public ReadOnly IdentEndBitIndex As Long
 
-    Public ReadOnly DataBitIndex As Long
+    Public ReadOnly DataStartBitIndex As Long
     Public ReadOnly Data As List(Of Byte)
     Public ReadOnly DataChecksum As UShort
     Public ReadOnly DataCalculatedChecksum As UShort
+    Public ReadOnly DataEndBitIndex As Long
 
-    Public Sub New(sectorIdentifierBitIndex As Long, trackNumber As Byte, sideNumber As Byte, sectorNumber As Byte, sectorSize As Integer, sectorIdentifierChecksum As UShort,
-                   sectorIdentifierCalculatedChecksum As UShort, dataBitIndex As Long, data As List(Of Byte), dataChecksum As UShort, dataCalculatedChecksum As UShort)
-        Me.SectorIdentifierBitIndex = sectorIdentifierBitIndex
+    Public Sub New(identStartBitIndex As Long,
+                   trackNumber As Byte,
+                   sideNumber As Byte,
+                   sectorNumber As Byte,
+                   sectorSize As Integer,
+                   identChecksum As UShort,
+                   identCalculatedChecksum As UShort,
+                   identEndBitIndex As Long,
+                   dataStartBitIndex As Long,
+                   data As List(Of Byte),
+                   dataChecksum As UShort,
+                   dataCalculatedChecksum As UShort,
+                   dataEndBitIndex As Long)
+        Me.IdentStartBitIndex = identStartBitIndex
         Me.TrackNumber = trackNumber
         Me.SideNumber = sideNumber
         Me.SectorNumber = sectorNumber
         Me.SectorSize = sectorSize
-        Me.SectorIdentifierChecksum = sectorIdentifierChecksum
-        Me.SectorIdentifierCalculatedChecksum = sectorIdentifierCalculatedChecksum
-        Me.DataBitIndex = dataBitIndex
+        Me.IdentChecksum = identChecksum
+        Me.IdentCalculatedChecksum = identCalculatedChecksum
+        Me.IdentEndBitIndex = identEndBitIndex
+        Me.DataStartBitIndex = dataStartBitIndex
         Me.Data = data
         Me.DataChecksum = dataChecksum
         Me.DataCalculatedChecksum = dataCalculatedChecksum
+        Me.DataEndBitIndex = dataEndBitIndex
     End Sub
 
-    Public ReadOnly Property SectorIdentifierChecksumValid As Boolean
+    Public ReadOnly Property IdentChecksumValid As Boolean
         Get
-            Return SectorIdentifierChecksum = SectorIdentifierCalculatedChecksum
+            Return IdentChecksum = IdentCalculatedChecksum
         End Get
     End Property
 

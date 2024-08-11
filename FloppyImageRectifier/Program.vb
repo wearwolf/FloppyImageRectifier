@@ -131,7 +131,7 @@ Module Program
                 Console.WriteLine($"Writing HFE file: {hfeFilePath}")
                 Dim hfeFile = New HfeFile(hfeFilePath)
                 Dim hfeEncoder = New HfeEncoder(hfeFile, mfmFile)
-                hfeEncoder.Encode()
+                hfeEncoder.Encode(outputWriter)
                 hfeFile.Write()
             End If
         End If

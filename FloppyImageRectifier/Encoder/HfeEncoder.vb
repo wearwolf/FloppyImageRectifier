@@ -17,7 +17,7 @@
         m_mfmImage = mfmImage
     End Sub
 
-    Public Sub Encode()
+    Public Sub Encode(outputWriter As OutputWriter)
         Dim header = CreateHeader()
         m_hfeFile.Header = header
 
@@ -44,8 +44,8 @@
 
             filePosition += blockCount
 
-            Dim side0Data = If(side0TrackData IsNot Nothing, WrapTrackData(side0TrackData), CreateEmptyTrackData(byteCount))
-            Dim side1Data = If(side1TrackData IsNot Nothing, WrapTrackData(side1TrackData), CreateEmptyTrackData(byteCount))
+            Dim side0Data = If(side0TrackData IsNot Nothing, AdjustAndWrapTrackData(side0TrackData, track.Side0Revolution.Sectors, outputWriter), CreateEmptyTrackData(byteCount))
+            Dim side1Data = If(side1TrackData IsNot Nothing, AdjustAndWrapTrackData(side1TrackData, track.Side1Revolution.Sectors, outputWriter), CreateEmptyTrackData(byteCount))
 
             Dim trackData = New HfeTrackData(trackOffset) With {
                 .Side0 = side0Data,
@@ -106,16 +106,35 @@
         Return bytes
     End Function
 
-    Private Function WrapTrackData(trackData As BitList) As List(Of Byte)
-        Dim remainingBits = (HfeFile.BLOCK_LENGTH * 8 / 2) - (trackData.BitCount Mod (HfeFile.BLOCK_LENGTH * 8 / 2))
+    Private Function AdjustAndWrapTrackData(trackData As BitList, sectors As List(Of MfmSector), outputWriter As OutputWriter) As List(Of Byte)
+        Dim modifiedTrack = New BitList(trackData.Data, trackData.BitCount)
 
-        trackData.ResetRead()
+        Dim wrappedSector = sectors.Where(Function(s) s.IdentStartBitIndex > s.IdentEndBitIndex OrElse s.DataStartBitIndex > s.DataEndBitIndex).FirstOrDefault
+        If wrappedSector IsNot Nothing Then
+            Dim previousSector = sectors.Where(Function(s) s.DataEndBitIndex < wrappedSector.IdentStartBitIndex).OrderByDescending(Function(s) s.DataEndBitIndex).First()
+            Dim nextSector = sectors.Where(Function(s) s.IdentStartBitIndex > wrappedSector.DataEndBitIndex).OrderBy(Function(s) s.IdentStartBitIndex).First()
+
+            Dim distanceToPreviousGap = modifiedTrack.BitCount - wrappedSector.IdentStartBitIndex + (wrappedSector.IdentStartBitIndex - previousSector.DataEndBitIndex) \ 2
+            Dim distanceToNextGap = wrappedSector.DataEndBitIndex + (nextSector.IdentStartBitIndex - wrappedSector.DataEndBitIndex) \ 2
+
+            If distanceToPreviousGap < distanceToNextGap Then
+                outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate right by {distanceToPreviousGap}")
+                modifiedTrack.RotateRight(distanceToPreviousGap)
+            Else
+                outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate left by {distanceToNextGap}")
+                modifiedTrack.RotateLeft(distanceToNextGap)
+            End If
+        End If
+
+        Dim remainingBits = (HfeFile.BLOCK_LENGTH * 8 / 2) - (modifiedTrack.BitCount Mod (HfeFile.BLOCK_LENGTH * 8 / 2))
+
+        Dim value = False
         For i = 0 To remainingBits - 1
-            Dim bit = trackData.ReadBit()
-            trackData.AddBit(bit)
+            modifiedTrack.AddBit(value)
+            value = Not value
         Next
 
-        Dim reversedData = ByteBitReverser.ReverseBytes(trackData.Data)
+        Dim reversedData = ByteBitReverser.ReverseBytes(modifiedTrack.Data)
         Return reversedData
     End Function
 End Class

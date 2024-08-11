@@ -32,6 +32,7 @@
 #Region "Public Methods"
 
     Public Function Decode() As MfmTrackRevolution
+        m_bitList.ResetRead()
         Dim sectors = New List(Of MfmSector)
 
         m_reachedEndOfTrack = False
@@ -40,7 +41,7 @@
                 Exit While
             End If
 
-            Dim identifierIndex = m_bitList.Position - 16
+            Dim identifierStartIndex = m_bitList.ReadPosition - 16
 
             Dim cylinder = ReadByte()
             Dim side = ReadByte()
@@ -50,18 +51,34 @@
             Dim calculatedIdentifierEdc = m_edc
             Dim identifierEdc = ReadUShort()
 
+            Dim identifierEndIndex = m_bitList.ReadPosition
+
             If Not FindDataIdentifierMark() Then
                 Exit While
             End If
 
-            Dim dataIndex = m_bitList.Position - 16
+            Dim dataStartIndex = m_bitList.ReadPosition - 16
 
             Dim data = ReadBytes(SECTOR_SIZE_MULTIPLIER * Math.Pow(2, sectorSize))
 
             Dim calculatedDataEdc = m_edc
             Dim dataEdc = ReadUShort()
 
-            Dim sector = New MfmSector(identifierIndex, cylinder, side, sectorNumber, sectorSize, identifierEdc, calculatedIdentifierEdc, dataIndex, data, dataEdc, calculatedDataEdc)
+            Dim dataEndIndex = m_bitList.ReadPosition
+
+            Dim sector = New MfmSector(identifierStartIndex,
+                                       cylinder,
+                                       side,
+                                       sectorNumber,
+                                       sectorSize,
+                                       identifierEdc,
+                                       calculatedIdentifierEdc,
+                                       identifierEndIndex,
+                                       dataStartIndex,
+                                       data,
+                                       dataEdc,
+                                       calculatedDataEdc,
+                                       dataEndIndex)
             sectors.Add(sector)
         End While
 
@@ -85,13 +102,8 @@
         Dim b As Byte = 0
 
         For i = 0 To 7
-            If m_bitList.IsEof Then
-                m_reachedEndOfTrack = True
-                m_bitList.ResetRead()
-            End If
-
-            m_bitList.ReadBit() ' ignore clock bit
-            Dim bit = m_bitList.ReadBit()
+            ReadBit() ' ignore clock bit
+            Dim bit = ReadBit()
             ShiftEdc(bit)
 
             b = b << 1
@@ -107,13 +119,8 @@
         Dim s As UShort = 0
 
         For i = 0 To 15
-            If m_bitList.IsEof Then
-                m_reachedEndOfTrack = True
-                m_bitList.ResetRead()
-            End If
-
-            m_bitList.ReadBit() ' ignore clock bit
-            Dim bit = m_bitList.ReadBit()
+            ReadBit() ' ignore clock bit
+            Dim bit = ReadBit()
             ShiftEdc(bit)
 
             s = s << 1
@@ -129,16 +136,20 @@
         Dim data = New List(Of Byte)(count)
 
         For i = 1 To count
-            If m_bitList.IsEof Then
-                m_reachedEndOfTrack = True
-                m_bitList.ResetRead()
-            End If
-
             Dim b = ReadByte()
             data.Add(b)
         Next
 
         Return data
+    End Function
+
+    Private Function ReadBit() As Boolean
+        If m_bitList.IsEof Then
+            m_reachedEndOfTrack = True
+            m_bitList.ResetRead()
+        End If
+
+        Return m_bitList.ReadBit()
     End Function
 
     Private Function FindIdentifierMark(typeMark As UShort, shouldReset As Boolean) As Boolean
@@ -152,7 +163,7 @@
 
             For i = 0 To 2
                 If Not FindRawValue(IDENTIFIER_MARK) Then
-                    m_bitList.ReadBit()
+                    ReadBit()
                     Continue While
                 End If
             Next
@@ -182,12 +193,7 @@
         Dim s As UShort = 0
 
         For i = 0 To 15
-            If m_bitList.IsEof Then
-                m_reachedEndOfTrack = True
-                m_bitList.ResetRead()
-            End If
-
-            Dim bit = m_bitList.ReadBit()
+            Dim bit = ReadBit()
 
             If i Mod 2 = 1 Then
                 ShiftEdc(bit)

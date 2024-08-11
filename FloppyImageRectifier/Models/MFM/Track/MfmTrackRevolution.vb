@@ -10,8 +10,8 @@
 
     Public Sub CheckRevolutionCheckSum(outputWriter As OutputWriter)
         For Each sector In Sectors
-            If Not sector.SectorIdentifierChecksumValid Then
-                outputWriter.WriteLine($"Sector (C:{sector.TrackNumber}, H:{sector.SideNumber}, S:{sector.SectorNumber}) Identifier EDC doesn't match, found {sector.SectorIdentifierCalculatedChecksum:X4}, should be {sector.SectorIdentifierChecksum:X4}")
+            If Not sector.IdentChecksumValid Then
+                outputWriter.WriteLine($"Sector (C:{sector.TrackNumber}, H:{sector.SideNumber}, S:{sector.SectorNumber}) Identifier EDC doesn't match, found {sector.IdentCalculatedChecksum:X4}, should be {sector.IdentChecksum:X4}")
             End If
 
             If Not sector.DataChecksumValid Then
@@ -22,7 +22,7 @@
 
     Public Function IsValid() As Boolean
         For Each sector In Sectors
-            If Not sector.SectorIdentifierChecksumValid Then
+            If Not sector.IdentChecksumValid Then
                 Return False
             End If
 
