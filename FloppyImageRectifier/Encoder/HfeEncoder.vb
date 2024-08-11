@@ -11,13 +11,14 @@
 
     Private m_hfeFile As HfeFile
     Private m_mfmImage As MfmImage
+    Private m_wrappedSectorsFound As Boolean
 
     Public Sub New(hfeFile As HfeFile, mfmImage As MfmImage)
         m_hfeFile = hfeFile
         m_mfmImage = mfmImage
     End Sub
 
-    Public Sub Encode(outputWriter As OutputWriter)
+    Public Sub Encode(outputWriter As OutputWriter, rotationFixup As Boolean)
         Dim header = CreateHeader()
         m_hfeFile.Header = header
 
@@ -44,8 +45,8 @@
 
             filePosition += blockCount
 
-            Dim side0Data = If(side0TrackData IsNot Nothing, AdjustAndWrapTrackData(side0TrackData, track.Side0Revolution.Sectors, outputWriter), CreateEmptyTrackData(byteCount))
-            Dim side1Data = If(side1TrackData IsNot Nothing, AdjustAndWrapTrackData(side1TrackData, track.Side1Revolution.Sectors, outputWriter), CreateEmptyTrackData(byteCount))
+            Dim side0Data = If(side0TrackData IsNot Nothing, AdjustAndWrapTrackData(side0TrackData, track.Side0Revolution.Sectors, outputWriter, rotationFixup), CreateEmptyTrackData(byteCount))
+            Dim side1Data = If(side1TrackData IsNot Nothing, AdjustAndWrapTrackData(side1TrackData, track.Side1Revolution.Sectors, outputWriter, rotationFixup), CreateEmptyTrackData(byteCount))
 
             Dim trackData = New HfeTrackData(trackOffset) With {
                 .Side0 = side0Data,
@@ -53,6 +54,10 @@
             }
             m_hfeFile.Tracks.Add(trackData)
         Next
+
+        If m_wrappedSectorsFound Then
+            outputWriter.WriteLine("Tracks contain wrapping sectors")
+        End If
 
     End Sub
 
@@ -106,23 +111,27 @@
         Return bytes
     End Function
 
-    Private Function AdjustAndWrapTrackData(trackData As BitList, sectors As List(Of MfmSector), outputWriter As OutputWriter) As List(Of Byte)
+    Private Function AdjustAndWrapTrackData(trackData As BitList, sectors As List(Of MfmSector), outputWriter As OutputWriter, rotationFixup As Boolean) As List(Of Byte)
         Dim modifiedTrack = New BitList(trackData.Data, trackData.BitCount)
 
         Dim wrappedSector = sectors.Where(Function(s) s.IdentStartBitIndex > s.IdentEndBitIndex OrElse s.DataStartBitIndex > s.DataEndBitIndex).FirstOrDefault
         If wrappedSector IsNot Nothing Then
-            Dim previousSector = sectors.Where(Function(s) s.DataEndBitIndex < wrappedSector.IdentStartBitIndex).OrderByDescending(Function(s) s.DataEndBitIndex).First()
-            Dim nextSector = sectors.Where(Function(s) s.IdentStartBitIndex > wrappedSector.DataEndBitIndex).OrderBy(Function(s) s.IdentStartBitIndex).First()
+            If rotationFixup Then
+                Dim previousSector = sectors.Where(Function(s) s.DataEndBitIndex < wrappedSector.IdentStartBitIndex).OrderByDescending(Function(s) s.DataEndBitIndex).First()
+                Dim nextSector = sectors.Where(Function(s) s.IdentStartBitIndex > wrappedSector.DataEndBitIndex).OrderBy(Function(s) s.IdentStartBitIndex).First()
 
-            Dim distanceToPreviousGap = modifiedTrack.BitCount - wrappedSector.IdentStartBitIndex + (wrappedSector.IdentStartBitIndex - previousSector.DataEndBitIndex) \ 2
-            Dim distanceToNextGap = wrappedSector.DataEndBitIndex + (nextSector.IdentStartBitIndex - wrappedSector.DataEndBitIndex) \ 2
+                Dim distanceToPreviousGap = modifiedTrack.BitCount - wrappedSector.IdentStartBitIndex + (wrappedSector.IdentStartBitIndex - previousSector.DataEndBitIndex) \ 2
+                Dim distanceToNextGap = wrappedSector.DataEndBitIndex + (nextSector.IdentStartBitIndex - wrappedSector.DataEndBitIndex) \ 2
 
-            If distanceToPreviousGap < distanceToNextGap Then
-                outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate right by {distanceToPreviousGap}")
-                modifiedTrack.RotateRight(distanceToPreviousGap)
+                If distanceToPreviousGap < distanceToNextGap Then
+                    outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate right by {distanceToPreviousGap}")
+                    modifiedTrack.RotateRight(distanceToPreviousGap)
+                Else
+                    outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate left by {distanceToNextGap}")
+                    modifiedTrack.RotateLeft(distanceToNextGap)
+                End If
             Else
-                outputWriter.WriteLine($"Track Number {sectors.First().TrackNumber}, Side {sectors.First().SideNumber} - Rotate left by {distanceToNextGap}")
-                modifiedTrack.RotateLeft(distanceToNextGap)
+                m_wrappedSectorsFound = True
             End If
         End If
 

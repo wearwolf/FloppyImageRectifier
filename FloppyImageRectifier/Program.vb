@@ -6,7 +6,7 @@ Module Program
     Sub Main(args As String())
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
 
-        If args.Length < 1 OrElse args.Length > 10 Then
+        If args.Length < 1 OrElse args.Length > 11 Then
             Console.WriteLine($"Unexpected number of arguments {args.Length}")
             Ussage()
             Return
@@ -17,6 +17,7 @@ Module Program
         Dim imgFilePath = String.Empty
         Dim diskType = FloppyDiskType.Unknown
         Dim outputPath = String.Empty
+        Dim rotationFixup = False
         For i = 0 To args.Length - 1
             Select Case args(i)
                 Case "-scp"
@@ -69,12 +70,14 @@ Module Program
                         outputPath = args(i + 1)
                         i = i + 1
                     End If
+                Case "-rotationFixups"
+                    rotationFixup = True
             End Select
         Next
 
         Using outputWriter = New OutputWriter(outputPath)
             If Not String.IsNullOrEmpty(scpFilePath) AndAlso (Not String.IsNullOrEmpty(hfeFilePath) OrElse Not String.IsNullOrEmpty(imgFilePath)) Then
-                ConvertScp(scpFilePath, hfeFilePath, imgFilePath, diskType, outputWriter)
+                ConvertScp(scpFilePath, hfeFilePath, imgFilePath, diskType, rotationFixup, outputWriter)
             ElseIf Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(imgFilePath) Then
                 ConvertHfe(hfeFilePath, imgFilePath, diskType, outputWriter)
             ElseIf Not String.IsNullOrEmpty(scpFilePath) Then
@@ -90,7 +93,7 @@ Module Program
         End Using
     End Sub
 
-    Sub ConvertScp(scpFilePath As String, hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, outputWriter As OutputWriter)
+    Sub ConvertScp(scpFilePath As String, hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, rotationFixup As Boolean, outputWriter As OutputWriter)
         If diskType = FloppyDiskType.Unknown Then
             Console.WriteLine("Missing disk type argument")
             Ussage()
@@ -108,7 +111,7 @@ Module Program
 
         Console.WriteLine($"Decoding SCP file")
         Dim scpDecoder = New ScpDecoder(scpFile)
-        Dim mfmFile = scpDecoder.DecodeMfm(diskType)
+        Dim mfmFile = scpDecoder.DecodeMfm(diskType, rotationFixup)
         mfmFile.CheckChecksums(outputWriter)
 
         Console.WriteLine($"Writing SCP file: {scpFilePath}")
@@ -131,7 +134,7 @@ Module Program
                 Console.WriteLine($"Writing HFE file: {hfeFilePath}")
                 Dim hfeFile = New HfeFile(hfeFilePath)
                 Dim hfeEncoder = New HfeEncoder(hfeFile, mfmFile)
-                hfeEncoder.Encode(outputWriter)
+                hfeEncoder.Encode(outputWriter, rotationFixup)
                 hfeFile.Write()
             End If
         End If

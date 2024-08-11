@@ -7,7 +7,7 @@
         m_scpFile = scpFile
     End Sub
 
-    Public Function DecodeMfm(diskType As FloppyDiskType) As MfmImage
+    Public Function DecodeMfm(diskType As FloppyDiskType, rotationFixup As Boolean) As MfmImage
         Dim mfmImage = New MfmImage(diskType)
 
         Dim maxTracks = (ScpFile.MAX_TRACK_NUMBER + 1) \ 2
@@ -16,8 +16,8 @@
             Dim side1TrackNumber = trackNumber * 2 + 1
 
             Dim mfmTrack = New MfmTrack(trackNumber)
-            Dim foundSide0Track = ProcessTrack(side0TrackNumber, diskType, mfmTrack, 0)
-            Dim foundSide1Track = ProcessTrack(side1TrackNumber, diskType, mfmTrack, 1)
+            Dim foundSide0Track = ProcessTrack(side0TrackNumber, diskType, mfmTrack, 0, rotationFixup)
+            Dim foundSide1Track = ProcessTrack(side1TrackNumber, diskType, mfmTrack, 1, rotationFixup)
 
             If foundSide0Track OrElse foundSide1Track Then
                 mfmImage.Tracks.Add(mfmTrack)
@@ -27,7 +27,7 @@
         Return mfmImage
     End Function
 
-    Private Function ProcessTrack(scpTrackNumber As Integer, diskType As FloppyDiskType, mfmTrack As MfmTrack, side As Integer) As Boolean
+    Private Function ProcessTrack(scpTrackNumber As Integer, diskType As FloppyDiskType, mfmTrack As MfmTrack, side As Integer, rotationFixup As Boolean) As Boolean
         Dim scpTrack = m_scpFile.Tracks.FirstOrDefault(Function(t) t.TrackOffset.TrackNumber = scpTrackNumber)
         If scpTrack Is Nothing Then
             Return False
@@ -50,7 +50,10 @@
         Dim completeReadBitList = New BitList()
         For Each timings In timingList
             Dim revolutionBitList = fluxDecoder.Decode(timings)
-            completeReadBitList.AddBitList(revolutionBitList)
+
+            If rotationFixup Then
+                completeReadBitList.AddBitList(revolutionBitList)
+            End If
 
             revolutionBitLists.Add(revolutionBitList)
             'Console.WriteLine($"Current Bitcell Time: {fluxDecoder.CurrentBitcellTime}")
@@ -58,35 +61,37 @@
 
         'Console.WriteLine($"Track Number: {mfmTrack.TrackNumber}, Side: {side}")
 
-        Dim currentIndex = 0
-        For i = 0 To revolutionBitLists.Count - 2
-            Dim revolutionBitList = revolutionBitLists(i)
+        If rotationFixup Then
+            Dim currentIndex = 0
+            For i = 0 To revolutionBitLists.Count - 2
+                Dim revolutionBitList = revolutionBitLists(i)
 
-            If i > 0 Then
-                Dim slice = revolutionBitList.Slice(0, revolutionBitList.BitCount / 4)
+                If i > 0 Then
+                    Dim slice = revolutionBitList.Slice(0, revolutionBitList.BitCount / 4)
 
-                Dim expectedIndex = currentIndex + revolutionBitList.BitCount
-                Dim nextIndex = completeReadBitList.Find(expectedIndex - TRACK_ADJUST_RANGE, expectedIndex + TRACK_ADJUST_RANGE, slice)
-                If nextIndex <> -1 Then
-                    Dim difference = nextIndex - expectedIndex
-                    If difference = 0 Then
-                        Continue For
-                    End If
+                    Dim expectedIndex = currentIndex + revolutionBitList.BitCount
+                    Dim nextIndex = completeReadBitList.Find(expectedIndex - TRACK_ADJUST_RANGE, expectedIndex + TRACK_ADJUST_RANGE, slice)
+                    If nextIndex <> -1 Then
+                        Dim difference = nextIndex - expectedIndex
+                        If difference = 0 Then
+                            Continue For
+                        End If
 
-                    Dim nextRevolutionBitList = revolutionBitLists(i + 1)
-                    If difference > 0 Then
-                        'Console.WriteLine($"Move {difference} bits from start of revolution {i + 1} to end of revolution {i}")
-                        revolutionBitList.ShiftBitsFromStartOf(nextRevolutionBitList, difference)
-                    ElseIf difference < 0 Then
-                        difference = Math.Abs(difference)
-                        'Console.WriteLine($"Move {difference} bits from end of revolution {i} to start of revolution {i + 1}")
-                        revolutionBitList.ShiftBitsToStartOf(nextRevolutionBitList, difference)
+                        Dim nextRevolutionBitList = revolutionBitLists(i + 1)
+                        If difference > 0 Then
+                            'Console.WriteLine($"Move {difference} bits from start of revolution {i + 1} to end of revolution {i}")
+                            revolutionBitList.ShiftBitsFromStartOf(nextRevolutionBitList, difference)
+                        ElseIf difference < 0 Then
+                            difference = Math.Abs(difference)
+                            'Console.WriteLine($"Move {difference} bits from end of revolution {i} to start of revolution {i + 1}")
+                            revolutionBitList.ShiftBitsToStartOf(nextRevolutionBitList, difference)
+                        End If
                     End If
                 End If
-            End If
 
-            currentIndex += revolutionBitList.BitCount
-        Next
+                currentIndex += revolutionBitList.BitCount
+            Next
+        End If
 
         Dim revolutions = New List(Of MfmTrackRevolution)
         For Each revolutionBitList In revolutionBitLists
