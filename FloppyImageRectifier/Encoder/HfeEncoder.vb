@@ -62,11 +62,19 @@
     End Sub
 
     Private Function CreateHeader() As HfeHeader
+        Dim hasSide0 = m_mfmImage.Tracks.Any(Function(t) t.Side0Revolution IsNot Nothing)
+        Dim hasSide1 = m_mfmImage.Tracks.Any(Function(t) t.Side1Revolution IsNot Nothing)
+
+        Dim sides = 1
+        If hasSide0 And hasSide1 Then
+            sides = 2
+        End If
+
         Dim header = New HfeHeader With {
                     .Signature = HfeHeader.EXPECTED_SIGNATURE,
                     .FormatVersion = 0,
                     .NumberOfTracks = m_mfmImage.Tracks.Count,
-                    .NumberOfSides = 2,
+                    .NumberOfSides = sides,
                     .TrackEncoding = HfeTrackEncoding.ISOIBM_MFM_ENCODING,
                     .Dnu = &HFF,
                     .TrackListOffset = 1,
@@ -82,11 +90,11 @@
             Case FloppyDiskType.PC_MFM_525_360
                 header.FloppyRpm = PC_MFM_525_360_RPM
                 header.BitRate = PC_MFM_525_360_BITRATE
-                header.FloppyInterfaceMode = HfeFloppyInterfaceMode.GENERIC_SHUGGART_DD_FLOPPYMODE
+                header.FloppyInterfaceMode = HfeFloppyInterfaceMode.IBMPC_DD_FLOPPYMODE
             Case FloppyDiskType.PC_MFM_525_1200
-                header.BitRate = PC_MFM_525_1200_RPM
+                header.FloppyRpm = PC_MFM_525_1200_RPM
                 header.BitRate = PC_MFM_525_1200_BITRATE
-                header.FloppyInterfaceMode = HfeFloppyInterfaceMode.GENERIC_SHUGGART_DD_FLOPPYMODE
+                header.FloppyInterfaceMode = HfeFloppyInterfaceMode.IBMPC_HD_FLOPPYMODE
             Case FloppyDiskType.PC_MFM_35_720
                 header.FloppyRpm = PC_MFM_35_720_RPM
                 header.BitRate = PC_MFM_35_720_BITRATE
