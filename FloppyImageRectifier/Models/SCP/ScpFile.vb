@@ -51,8 +51,10 @@ Public Class ScpFile
     Public Sub Write()
         Using fstream = File.Open(FilePath, FileMode.Open, FileAccess.ReadWrite)
             Using BinaryWriter = New BinaryWriter(fstream, Encoding.Latin1)
-                ' Only the header is written because that's the only part that should be changed
+                ' Only the header and footer are written because those are the only parts that should be changed
                 Header.Write(BinaryWriter)
+
+                Footer.Write(fstream, BinaryWriter)
             End Using
         End Using
     End Sub
@@ -101,5 +103,20 @@ Public Class ScpFile
                 Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
                 Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
         End Select
+
+        Dim currentTimeStamp = Footer.ImageModificationTimestamp
+
+        Dim newTimeStamp = CULng(Math.Round((Date.Now - Date.UnixEpoch).TotalSeconds))
+
+        Dim checksum = Header.Checksum
+        For Each b In BitConverter.GetBytes(currentTimeStamp)
+            checksum -= checksum
+        Next
+
+        For Each b In BitConverter.GetBytes(newTimeStamp)
+            checksum += checksum
+        Next
+
+        Footer.ImageModificationTimestamp = newTimeStamp
     End Sub
 End Class

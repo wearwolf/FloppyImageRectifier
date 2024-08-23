@@ -88,6 +88,24 @@ Public Class ScpFooter
         outputWriter.WriteLine($"SIGNATURE = {Signature}")
     End Sub
 
+    Friend Sub Write(fstream As FileStream, binWriter As BinaryWriter)
+        fstream.Seek(-1 * FOOTER_LENGTH, SeekOrigin.End)
+
+        binWriter.Write(DriveManufacturerStringOffset)
+        binWriter.Write(DriveModelStringOffset)
+        binWriter.Write(DriveSerialNumberStringOffset)
+        binWriter.Write(CreatorStringOffset)
+        binWriter.Write(ApplicationNameStringOffset)
+        binWriter.Write(CommentsStringOffset)
+        binWriter.Write(ImageCreationTimestamp)
+        binWriter.Write(ImageModificationTimestamp)
+        binWriter.Write(ApplicationVersion)
+        binWriter.Write(ScpHardwareVersion)
+        binWriter.Write(ScpFirmwareVersion)
+        binWriter.Write(ImageFormatRevision)
+        binWriter.Write(Signature.ToCharArray())
+    End Sub
+
     Private Function GetString(binReader As BinaryReader) As String
         Dim length = binReader.ReadUInt16()
         Dim str = binReader.ReadChars(length)
