@@ -2,7 +2,13 @@
 Imports System.Text
 
 Public Class ScpFile
+#Region "Constants"
+
     Public Const MAX_TRACK_NUMBER = 167
+
+#End Region
+
+#Region "Properties"
 
     Public Property FilePath As String
     Public Property Header As ScpHeader
@@ -10,11 +16,19 @@ Public Class ScpFile
     Public Property Tracks As List(Of ScpTrack)
     Public Property Footer As ScpFooter
 
+#End Region
+
+#Region "Constructor"
+
     Public Sub New(filePath As String)
         Me.FilePath = filePath
         TrackOffsets = New List(Of ScpTrackOffset)
         Tracks = New List(Of ScpTrack)
     End Sub
+
+#End Region
+
+#Region "Public Methods"
 
     Public Sub Read()
         Using fstream = File.OpenRead(FilePath)
@@ -75,48 +89,87 @@ Public Class ScpFile
         Footer.WriteOutput(outputWriter)
     End Sub
 
-    Friend Sub UpdateDiskType(diskType As FloppyDiskType)
-        If (Header.DiskType = ScpDiskType.disk_360) Then ' Default for GW
-            Select Case (diskType)
-                Case FloppyDiskType.PC_MFM_525_360
-                    Header.DiskType = ScpDiskType.disk_PC360K
-                Case FloppyDiskType.PC_MFM_525_1200
-                    Header.DiskType = ScpDiskType.disk_PC12M
-                Case FloppyDiskType.PC_MFM_35_720
-                    Header.DiskType = ScpDiskType.disk_PC720K
-                Case FloppyDiskType.PC_MFM_35_1440
-                    Header.DiskType = ScpDiskType.disk_PC144M
-            End Select
+    Public Function NeedsUpdate(diskType As FloppyDiskType) As Boolean
+        If Header.DiskType <> GetScpDiskType(diskType) Then
+            Return True
         End If
 
-        Select Case (diskType)
-            Case FloppyDiskType.PC_MFM_525_360
-                Header.Flags = Header.Flags And Not ScpImageFlags.Tpi96
-                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
-            Case FloppyDiskType.PC_MFM_525_1200
-                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
-                Header.Flags = Header.Flags Or ScpImageFlags.Rpm360
-            Case FloppyDiskType.PC_MFM_35_720
-                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
-                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
-            Case FloppyDiskType.PC_MFM_35_1440
-                Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
-                Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
-        End Select
+        Dim tip96Flag = ShouldHaveTpi96Flag(diskType)
+        If tip96Flag AndAlso (Header.Flags And ScpImageFlags.Tpi96) = 0 Then
+            Return True
+        ElseIf Not tip96Flag AndAlso (Header.Flags And ScpImageFlags.Tpi96) <> 0 Then
+            Return True
+        End If
+
+        Dim rpm360Flag = ShouldHaveRpm360Flag(diskType)
+        If rpm360Flag AndAlso (Header.Flags And ScpImageFlags.Rpm360) = 0 Then
+            Return True
+        ElseIf Not rpm360Flag AndAlso (Header.Flags And ScpImageFlags.Rpm360) <> 0 Then
+            Return True
+        End If
+
+        Return False
+    End Function
+
+    Public Sub UpdateDiskType(diskType As FloppyDiskType)
+        Header.DiskType = GetScpDiskType(diskType)
+
+        If ShouldHaveTpi96Flag(diskType) Then
+            Header.Flags = Header.Flags Or ScpImageFlags.Tpi96
+        Else
+            Header.Flags = Header.Flags And Not ScpImageFlags.Tpi96
+        End If
+
+        If ShouldHaveRpm360Flag(diskType) Then
+            Header.Flags = Header.Flags Or ScpImageFlags.Rpm360
+        Else
+            Header.Flags = Header.Flags And Not ScpImageFlags.Rpm360
+        End If
 
         Dim currentTimeStamp = Footer.ImageModificationTimestamp
-
-        Dim newTimeStamp = CULng(Math.Round((Date.Now - Date.UnixEpoch).TotalSeconds))
-
         Dim checksum = Header.Checksum
         For Each b In BitConverter.GetBytes(currentTimeStamp)
             checksum -= checksum
         Next
 
+        Dim newTimeStamp = CULng(Math.Round((Date.Now - Date.UnixEpoch).TotalSeconds))
         For Each b In BitConverter.GetBytes(newTimeStamp)
             checksum += checksum
         Next
 
         Footer.ImageModificationTimestamp = newTimeStamp
     End Sub
+
+#End Region
+
+#Region "Private Methods"
+
+    Private Function GetScpDiskType(diskType As FloppyDiskType) As ScpDiskType
+        Dim scpType = ScpDiskType.Unknown
+        Select Case (diskType)
+            Case FloppyDiskType.PC_MFM_525_360
+                scpType = ScpDiskType.disk_PC360K
+            Case FloppyDiskType.PC_MFM_525_1200
+                scpType = ScpDiskType.disk_PC12M
+            Case FloppyDiskType.PC_MFM_35_720
+                scpType = ScpDiskType.disk_PC720K
+            Case FloppyDiskType.PC_MFM_35_1440
+                scpType = ScpDiskType.disk_PC144M
+        End Select
+
+        Return scpType
+    End Function
+
+    Private Function ShouldHaveTpi96Flag(diskType As FloppyDiskType) As Boolean
+        Return diskType = FloppyDiskType.PC_MFM_525_1200 OrElse
+            diskType = FloppyDiskType.PC_MFM_35_720 OrElse
+            diskType = FloppyDiskType.PC_MFM_35_1440
+    End Function
+
+    Private Function ShouldHaveRpm360Flag(diskType As FloppyDiskType) As Boolean
+        Return diskType = FloppyDiskType.PC_MFM_525_1200
+    End Function
+
+#End Region
+
 End Class

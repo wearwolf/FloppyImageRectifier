@@ -114,9 +114,11 @@ Module Program
         Dim mfmFile = scpDecoder.DecodeMfm(diskType, rotationFixup)
         mfmFile.CheckChecksums(outputWriter)
 
-        Console.WriteLine($"Writing SCP file: {scpFilePath}")
-        scpFile.UpdateDiskType(diskType)
-        scpFile.Write()
+        If scpFile.NeedsUpdate(diskType) Then
+            Console.WriteLine($"Updating SCP file: {scpFilePath}")
+            scpFile.UpdateDiskType(diskType)
+            scpFile.Write()
+        End If
 
         Dim writeHfe = True
         If Not String.IsNullOrEmpty(hfeFilePath) Then
