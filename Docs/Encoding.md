@@ -92,5 +92,6 @@ If a side of a track doesn't exist then all 0s will be written for that section 
 
 IMG files are very simple and only contain data.
 
-The data blocks from each sector are written out in order for each track. The sectors from Side 0 are written, if they exists,
-and the sectors from side 1 are written, if they exist. The sectors are always written in assenting order based on sector number.
+The data blocks are written for each track based on the order they were read from the original image, which should be in ascending order
+by track number. The sectors from Side 0 are written, if they exists, and the sectors from side 1 are written, if they exist. 
+The sectors are always written in ascending order based on sector number.
