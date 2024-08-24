@@ -19,7 +19,7 @@ The Disk Type and Flag fields of the SCP header are updated based on the value o
 
 ### SCP Footer updates
 
-The modification time in the footer is also updated to indicate that the file has been changed. This also requires updating the checksum
+The modification time in the footer is also updated to indicate that the file has been changed. This requires updating the checksum
 because it covers the footer (It doesn't cover the header so the disk type and flag changes don't impact the checksum)
 
 The checksum is simply an addition of all the bytes in the file beyond the header so to update the checksum the bytes from the original
@@ -38,16 +38,16 @@ The track offset list location is set to 1 to indicate that it starts at the sec
 The RPM, bitrate and interface type are set based on the type of disk selected
 
 | Disk Type | Rotation Speed (RPM) | Bitrate (Kb/s) | Interface Mode |
-| --- | ---: |  ---: |  ---: | ---: | ---: |
-| 5.25" DS-DD 360k | 300 | 250 | IBM PC Double Density |
-| 5.25" DS-HD 1200k | 360 | 500 | IBM PC High Density  |
-| 3.5" DS-DD 720k | 300 | 250 | IBM PC Double Density |
-| 3.5" DS-HD 1440k | 300 | 500 | IBM PC High Density |
+| --- | ---: |  ---: | --- |
+| 5.25" DS-DD 360k | 300 | 250 | IBMPC_DD_FLOPPYMODE |
+| 5.25" DS-HD 1200k | 360 | 500 | IBMPC_HD_FLOPPYMODE  |
+| 3.5" DS-DD 720k | 300 | 250 | IBMPC_DD_FLOPPYMODE |
+| 3.5" DS-HD 1440k | 300 | 500 | IBMPC_HD_FLOPPYMODE |
 
-The Interface Mode is based off of creating test images with HxC tools. The Double and High density interface modes might line up
+The correct Interface Mode was determined by creating test images with HxC tools. The Double and High density interface modes might line up
 with the 250 Kb/s and 500 Kilobits/s bitrates respectively.
 
-The bitrate can also be calculated using the rotation speed in radians/s
+The bitrate was determined using the same method but can also be calculated using the rotation speed in radians/s
 and bitcell length in radians.
 
 bitrate = rotation speed in radians per second / bitcell length in radians
@@ -55,7 +55,7 @@ bitrate = rotation speed in radians per second / bitcell length in radians
 or the number of bitcells per second
 
 | Disk Type | Rotation Speed (rad/s) | bitcell length (rad) | bitrate (bits/s) |
-| --- | ---: |  ---: |  ---: | ---: | ---: |
+| --- | ---: |  ---: |  ---: |
 | 5.25" DS-DD 360k | 31.416 | 0.0001257 | 249927.8165 |
 | 5.25" DS-HD 1200k | 37.699 | 0.0000755 | 499325.9847 |
 | 3.5" DS-DD 720k | 31.416 | 0.0001257 | 249927.8165 |
@@ -64,7 +64,7 @@ or the number of bitcells per second
 ### Track Offsets
 
 The number of tracks is used to calculate the number of 512 byte blocks needed to store track offset information. The Offset for each
-track is then calculated by using that value plus 1, for the header, and a running accumulation of the number of blocks needed to store
+track is then calculated by starting with that value plus 1, for the header, and an accumulation of the number of blocks needed to store
 each track
 
 The track length is calculated by finding the maximum number of bytes required between both sides of the track and rounding up.
@@ -79,7 +79,7 @@ at the beginning of the track. Writing 0 bits might artificially extend the end 
 
 The bytes are reversed because HFE files read bytes starting with the least significant bit
 
-If rotation fixups are enabled then the track is also rotated to try and prevent the end of the track appearing in the middle of an identifier
+If rotation fix-ups are enabled then the track is also rotated to try and prevent the end of the track appearing in the middle of an identifier
 or data block as that could cause issues reading the disk. 
 
 Because HFE files specify the length of a track in bytes, and also some tools don't seem to check that value, there is likely to
