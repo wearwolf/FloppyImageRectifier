@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6C321931-95CB-4FB3-9487-568C14C33258}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\Decoding.md = Docs\Decoding.md
+		Docs\Encoding.md = Docs\Encoding.md
 		Docs\FM.md = Docs\FM.md
 		Docs\HFE.md = Docs\HFE.md
 		Docs\IMG.md = Docs\IMG.md
