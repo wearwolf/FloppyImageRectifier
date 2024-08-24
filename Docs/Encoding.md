@@ -79,8 +79,7 @@ at the beginning of the track. Writing 0 bits might artificially extend the end 
 
 The bytes are reversed because HFE files read bytes starting with the least significant bit
 
-If rotation fix-ups are enabled then the track is also rotated to try and prevent the end of the track appearing in the middle of an identifier
-or data block as that could cause issues reading the disk. 
+If rotation fix-ups are enabled then the track is also rotated so that the end of the track is moved to the closest gap.
 
 Because HFE files specify the length of a track in bytes, and also some tools don't seem to check that value, there is likely to
 be a discontinuity at the end of each track as it's not clear where in the last byte, or block if the actual length is ignored, the
