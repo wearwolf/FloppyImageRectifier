@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6C321931-95CB-4FB3-9487-568C14C33258}"
 	ProjectSection(SolutionItems) = preProject
+		Docs\Decoding.md = Docs\Decoding.md
 		Docs\FM.md = Docs\FM.md
 		Docs\HFE.md = Docs\HFE.md
 		Docs\IMG.md = Docs\IMG.md
@@ -19,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6C321931-9
 		Docs\SCP.md = Docs\SCP.md
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "FloppyImageRectifier.Tests", "FloppyImageRectifier.Tests\FloppyImageRectifier.Tests.vbproj", "{D08D906D-903C-4F60-A9B5-4100C190FDAF}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "FloppyImageRectifier.Tests", "FloppyImageRectifier.Tests\FloppyImageRectifier.Tests.vbproj", "{D08D906D-903C-4F60-A9B5-4100C190FDAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
