@@ -2,7 +2,7 @@
   "profiles": {
     "FloppyImageRectifier": {
       "commandName": "Project",
-      "commandLineArgs": "-scp \"D:\\Test Disks\\Attempt Beta\\PC DOS 3.30\\5.25\\PCDOS_330_01_Startup.scp\" -output \"test.txt\""
+      "commandLineArgs": "-scp \"D:\\Test Disks\\Attempt Beta\\Microsoft Windows 2.11 386\\5.25\\Win_211_01_Setup_Build_Displays1_2.scp\" -hfe \"Win_211_01_Setup_Build_Displays1_2.hfe\" -img \"Win_211_01_Setup_Build_Displays1_2.img\" -output \"test.txt\" -type PC_MFM_525_1200 -rotationFixups"
     }
   }
 }
