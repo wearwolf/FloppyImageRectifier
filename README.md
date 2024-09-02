@@ -121,7 +121,6 @@ and the following repositories for other floppy conversion tools
 * [greaseweazle][github-gw]
 * [HxCFloppyEmulator][github-hxc]
 
-[docs-mfm]: Docs/MFM.md
 [ECMA-70]: https://ecma-international.org/publications-and-standards/standards/ecma-70/
 [ECMA-99]: https://ecma-international.org/publications-and-standards/standards/ecma-99/
 [ECMA-100]: https://ecma-international.org/publications-and-standards/standards/ecma-100/
