@@ -65,7 +65,6 @@
         End If
     End Sub
 
-
     Public Sub CheckChecksums(outputWriter As OutputWriter)
         Dim side0 = Side0Revolution
         If side0 IsNot Nothing Then
@@ -77,18 +76,4 @@
             side1.CheckRevolutionCheckSum(outputWriter)
         End If
     End Sub
-
-    Public Function IsValid() As Boolean
-        Dim side0 = Side0Revolution
-        If side0 IsNot Nothing AndAlso Not side0.IsValid() Then
-            Return False
-        End If
-
-        Dim side1 = Side1Revolution
-        If side1 IsNot Nothing AndAlso Not side1.IsValid() Then
-            Return False
-        End If
-
-        Return True
-    End Function
 End Class

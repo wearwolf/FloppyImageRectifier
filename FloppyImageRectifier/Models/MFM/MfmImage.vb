@@ -1,9 +1,11 @@
 ﻿Public Class MfmImage
 
+    Public ReadOnly Property FileName As String
     Public ReadOnly Property DiskType As FloppyDiskType
     Public ReadOnly Property Tracks As List(Of MfmTrack)
 
-    Public Sub New(diskType As FloppyDiskType)
+    Public Sub New(fileName As String, diskType As FloppyDiskType)
+        Me.FileName = fileName
         Me.DiskType = diskType
         Tracks = New List(Of MfmTrack)
     End Sub

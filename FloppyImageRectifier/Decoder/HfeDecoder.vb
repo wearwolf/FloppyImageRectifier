@@ -1,4 +1,6 @@
-﻿Public Class HfeDecoder
+﻿Imports System.IO
+
+Public Class HfeDecoder
     Private m_hfeFile As HfeFile
 
     Public Sub New(hfeFile As HfeFile)
@@ -6,7 +8,8 @@
     End Sub
 
     Public Function DecodeMfm(diskType As FloppyDiskType) As MfmImage
-        Dim mfmImage = New MfmImage(diskType)
+        Dim fileName = Path.GetFileName(m_hfeFile.FilePath)
+        Dim mfmImage = New MfmImage(fileName, diskType)
 
         For Each hfeTrack In m_hfeFile.Tracks
             Dim track = New MfmTrack(hfeTrack.TrackOffset.TrackNumber)
@@ -25,7 +28,7 @@
 
     Private Shared Function DecodeSide(data As List(Of Byte), length As Integer) As MfmTrackRevolution
         Dim bitList = New BitList(ByteBitReverser.ReverseBytes(data), length * 8)
-        Dim decoder = New MfmTrackRevolutionDecoder(bitList)
+        Dim decoder = New MfmTrackRevolutionDecoder(bitList, 0, fixupsApplied:=False)
         Dim revolution = decoder.Decode()
         Return revolution
     End Function

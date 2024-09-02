@@ -1,4 +1,6 @@
-﻿Public Class ScpDecoder
+﻿Imports System.IO
+
+Public Class ScpDecoder
     Private Const TRACK_ADJUST_RANGE = 20
 
     Private m_scpFile As ScpFile
@@ -8,7 +10,8 @@
     End Sub
 
     Public Function DecodeMfm(diskType As FloppyDiskType, rotationFixup As Boolean) As MfmImage
-        Dim mfmImage = New MfmImage(diskType)
+        Dim fileName = Path.GetFileName(m_scpFile.FilePath)
+        Dim mfmImage = New MfmImage(fileName, diskType)
 
         Dim maxTracks = (ScpFile.MAX_TRACK_NUMBER + 1) \ 2
         For trackNumber = 0 To maxTracks
@@ -35,21 +38,21 @@
 
         ' Run through all the revolutions once to get the decoder timing synchronized
 
-        Dim timingList = New List(Of List(Of Long))
-        Dim fluxDecoder = New MfmFluxDecoder(diskType, m_scpFile.Header.CaptureResolutionInSeconds)
+        Dim timingList = New List(Of List(Of Double))
+        Dim fluxDecoder = New MfmFluxDecoder(diskType)
         'Console.WriteLine($"Nominal Bitcell Time: {fluxDecoder.NominalBitcellTime}")
         For Each revolution In scpTrack.TrackRevolutionData
-            Dim timings = NormalizeTiming(revolution.TimeEntries)
+            Dim timings = NormalizeTiming(revolution.TimeEntries, m_scpFile.Header.CaptureResolutionInSeconds)
             timingList.Add(timings)
 
-            Dim revolutionBitList = fluxDecoder.Decode(timings)
+            Dim revolutionBitList = fluxDecoder.Decode(timings, mfmTrack.TrackNumber, side)
             'Console.WriteLine($"Current Bitcell Time: {fluxDecoder.CurrentBitcellTime}")
         Next
 
         Dim revolutionBitLists = New List(Of BitList)
         Dim completeReadBitList = New BitList()
         For Each timings In timingList
-            Dim revolutionBitList = fluxDecoder.Decode(timings)
+            Dim revolutionBitList = fluxDecoder.Decode(timings, mfmTrack.TrackNumber, side)
 
             If rotationFixup Then
                 completeReadBitList.AddBitList(revolutionBitList)
@@ -61,127 +64,155 @@
 
         'Console.WriteLine($"Track Number: {mfmTrack.TrackNumber}, Side: {side}")
 
-        If rotationFixup Then
-            Dim currentIndex = 0
-            For i = 0 To revolutionBitLists.Count - 2
-                Dim revolutionBitList = revolutionBitLists(i)
+        Dim revolutions = New List(Of MfmTrackRevolution)
+        Dim currentIndex = 0
+        For i = 0 To revolutionBitLists.Count - 1
+            Dim revolutionBitList = revolutionBitLists(i)
 
-                If i > 0 Then
-                    Dim slice = revolutionBitList.Slice(0, revolutionBitList.BitCount / 4)
+            Dim fixupsApplied = False
+            If rotationFixup AndAlso i > 0 AndAlso i < revolutionBitLists.Count - 1 Then
+                Dim slice = revolutionBitList.Slice(0, revolutionBitList.BitCount / 4)
 
-                    Dim expectedIndex = currentIndex + revolutionBitList.BitCount
-                    Dim nextIndex = completeReadBitList.Find(expectedIndex - TRACK_ADJUST_RANGE, expectedIndex + TRACK_ADJUST_RANGE, slice)
-                    If nextIndex <> -1 Then
-                        Dim difference = nextIndex - expectedIndex
-                        If difference = 0 Then
-                            Continue For
-                        End If
-
+                Dim expectedIndex = currentIndex + revolutionBitList.BitCount
+                Dim nextIndex = completeReadBitList.Find(expectedIndex - TRACK_ADJUST_RANGE, expectedIndex + TRACK_ADJUST_RANGE, slice)
+                If nextIndex <> -1 Then
+                    Dim difference = nextIndex - expectedIndex
+                    If difference <> 0 Then
                         Dim nextRevolutionBitList = revolutionBitLists(i + 1)
                         If difference > 0 Then
                             'Console.WriteLine($"Move {difference} bits from start of revolution {i + 1} to end of revolution {i}")
                             revolutionBitList.ShiftBitsFromStartOf(nextRevolutionBitList, difference)
+                            fixupsApplied = True
                         ElseIf difference < 0 Then
                             difference = Math.Abs(difference)
                             'Console.WriteLine($"Move {difference} bits from end of revolution {i} to start of revolution {i + 1}")
                             revolutionBitList.ShiftBitsToStartOf(nextRevolutionBitList, difference)
+                            fixupsApplied = True
                         End If
                     End If
                 End If
+            End If
 
-                currentIndex += revolutionBitList.BitCount
-            Next
-        End If
-
-        Dim revolutions = New List(Of MfmTrackRevolution)
-        For Each revolutionBitList In revolutionBitLists
-            Dim decoder = New MfmTrackRevolutionDecoder(revolutionBitList)
+            currentIndex += revolutionBitList.BitCount
+            Dim decoder = New MfmTrackRevolutionDecoder(revolutionBitList, i, fixupsApplied)
             Dim decodedRevolution = decoder.Decode()
+            decodedRevolution.TimeEntries = timingList(i)
 
             revolutions.Add(decodedRevolution)
             mfmTrack.AddRevolution(decodedRevolution, side)
         Next
 
-        Dim revGroups = New Dictionary(Of Integer, Integer)(revolutions.Count)
-
-        For i = 0 To revolutions.Count - 1
-            revGroups(i) = i + 1
-        Next
-
         For i = 1 To revolutions.Count
-            Dim revolutionNumber = i
-            Dim index = revGroups.FirstOrDefault(Function(g) g.Value = revolutionNumber)
-            If index.Value = 0 Then
+            Dim revolutionGroup = i
+            Dim exampleRevolution = revolutions.FirstOrDefault(Function(g) g.RevolutionGroup = revolutionGroup)
+            If exampleRevolution Is Nothing Then
                 Continue For
             End If
-            Dim baseRevolution = revolutions(index.Key)
 
             For j = i To revolutions.Count - 1
-                If revGroups(j) <= i Then
+                Dim testRevolution = revolutions(j)
+                If testRevolution.RevolutionGroup <= i Then
                     Continue For
                 End If
 
-                Dim testRevolution = revolutions(j)
-                Dim percentage = baseRevolution.MatchPercentage(testRevolution)
-                If percentage > 0.95 Then
-                    revGroups(j) = i
+                Dim percentage = exampleRevolution.MatchPercentage(testRevolution)
+                If percentage > 0.99 Then
+                    testRevolution.RevolutionGroup = i
                 End If
             Next
         Next
 
-        Dim groupedGroups = revGroups.GroupBy(Function(g) g.Value)
-        Dim largestGroup = groupedGroups.Max(Function(g) g.Count)
-        Dim largeGroups = groupedGroups.Where(Function(g) g.Count = largestGroup)
-        If largeGroups.Count = 1 Then
-            Dim group = largeGroups(0)
-            If group.Count = 1 Then
-                Dim selectedIndex = group(0).Key
-                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, only one in largest group")
-                mfmTrack.SelectRevolution(selectedIndex, side)
+        Dim groupedGroups = revolutions.GroupBy(Function(g) g.RevolutionGroup)
+        Dim bestGroup = FindBestGroup(groupedGroups)
+
+        If bestGroup IsNot Nothing Then
+            Dim bestRevolution = FindBestRevolutionInGroup(bestGroup)
+            If bestRevolution IsNot Nothing Then
+                mfmTrack.SelectRevolution(bestRevolution.RevolutionNumber, side)
             Else
-                Dim validRevolutions = group.Where(Function(r) revolutions(r.Key).IsValid)
-                If validRevolutions.Count = 1 Then
-                    Dim selectedIndex = validRevolutions(0).Key
-                    'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, only valid one in largest group")
-                    mfmTrack.SelectRevolution(selectedIndex, side)
-                ElseIf validRevolutions.Count = 0 Then
-                    Dim selectedIndex = group.OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
-                    'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in largest group")
-                    mfmTrack.SelectRevolution(selectedIndex, side)
-                Else
-                    Dim selectedIndex = validRevolutions.OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
-                    ' Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle valid one in largest group")
-                    mfmTrack.SelectRevolution(selectedIndex, side)
-                End If
+                Throw New InvalidOperationException($"Unable to find best revolution for scp track number: {scpTrackNumber}")
             End If
         Else
-            Dim validGroups = groupedGroups.Where(Function(g) g.Count = largestGroup AndAlso revolutions(g.First().Key).IsValid)
-            If validGroups.Count = 1 Then
-                Dim selectedIndex = validGroups(0).OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
-                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in largest valid group")
-                mfmTrack.SelectRevolution(selectedIndex, side)
-            ElseIf validGroups.Count = 0 Then
-                Dim selectedIndex = groupedGroups.Where(Function(g) g.Count = largestGroup).OrderByDescending(Function(g) DistanceToEnd(g.Key, groupedGroups.Count)).
-                    OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
-                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in middle largest group")
-                mfmTrack.SelectRevolution(selectedIndex, side)
-            Else
-                Dim selectedIndex = validGroups.OrderByDescending(Function(g) DistanceToEnd(g.Key, groupedGroups.Count)).
-                    OrderByDescending(Function(g) DistanceToEnd(g.Key, revolutions.Count)).First().Key
-                'Console.WriteLine($"Track {mfmTrack.TrackNumber}, Side {side} - Selected revolution {selectedIndex}, Middle one in middle largest valid group")
-                mfmTrack.SelectRevolution(selectedIndex, side)
-            End If
+            Throw New InvalidOperationException($"Unable to find best revolution group for scp track number: {scpTrackNumber}")
         End If
 
         Return True
     End Function
 
-    Private Function DistanceToEnd(i As Integer, count As Integer)
-        Return Math.Min(i, count - i - 1)
+    Private Function FindBestGroup(groups As IEnumerable(Of IGrouping(Of Integer, MfmTrackRevolution))) As IGrouping(Of Integer, MfmTrackRevolution)
+        Dim largestGroup = groups.Max(Function(g) g.Count)
+        Dim largeGroups = groups.Where(Function(g) g.Count = largestGroup)
+        If largeGroups.Count = 1 Then
+            Dim group = largeGroups(0)
+            Return group
+        Else
+            Dim validGroups = largeGroups.Where(Function(g) g.Any(Function(r) r.SectorsValid))
+            If validGroups.Count = 1 Then
+                Dim group = validGroups(0)
+                Return group
+            ElseIf validGroups.Count > 1 Then
+                Dim fixupGroups = validGroups.Where(Function(g) g.Any(Function(r) r.FixupsApplied))
+                If fixupGroups.Count = 1 Then
+                    Dim group = fixupGroups(0)
+                    Return group
+                ElseIf fixupGroups.Count > 1 Then
+                    Dim highestGroup = fixupGroups.OrderByDescending(Function(vfg) vfg.Key).FirstOrDefault()
+                    Return highestGroup
+                Else
+                    Dim highestGroup = validGroups.OrderByDescending(Function(vg) vg.Key).FirstOrDefault()
+                    Return highestGroup
+                End If
+            Else
+                Dim fixupGroups = largeGroups.Where(Function(g) g.Any(Function(r) r.FixupsApplied))
+                If fixupGroups.Count = 1 Then
+                    Dim group = fixupGroups(0)
+                    Return group
+                ElseIf fixupGroups.Count > 1 Then
+                    Dim highestGroup = fixupGroups.OrderByDescending(Function(fg) fg.Key).FirstOrDefault()
+                    Return highestGroup
+                Else
+                    Dim highestGroup = largeGroups.OrderByDescending(Function(g) g.Key).FirstOrDefault()
+                    Return highestGroup
+                End If
+            End If
+        End If
     End Function
 
-    Private Function NormalizeTiming(timeEntries As List(Of UShort)) As List(Of Long)
-        Dim timing = New List(Of Long)
+    Private Function FindBestRevolutionInGroup(group As IGrouping(Of Integer, MfmTrackRevolution)) As MfmTrackRevolution
+        If group.Count = 1 Then
+            Return group(0)
+        Else
+            Dim validRevolutions = group.Where(Function(r) r.SectorsValid)
+            If validRevolutions.Count = 1 Then
+                Return validRevolutions(0)
+            ElseIf validRevolutions.Count > 1 Then
+                Dim revolutionsWithFixups = validRevolutions.Where(Function(vr) vr.FixupsApplied)
+                If revolutionsWithFixups.Count = 1 Then
+                    Return revolutionsWithFixups(0)
+                ElseIf revolutionsWithFixups.Count > 1 Then
+                    Dim lastRevolution = revolutionsWithFixups.OrderByDescending(Function(vfr) vfr.RevolutionNumber).FirstOrDefault()
+                    Return lastRevolution
+                Else
+                    Dim lastRevolution = validRevolutions.OrderByDescending(Function(vr) vr.RevolutionNumber).FirstOrDefault()
+                    Return lastRevolution
+                End If
+            Else
+                Dim revolutionsWithFixups = group.Where(Function(r) r.FixupsApplied)
+                If revolutionsWithFixups.Count = 1 Then
+                    Return revolutionsWithFixups(0)
+                ElseIf revolutionsWithFixups.Count > 1 Then
+                    Dim lastRevolution = revolutionsWithFixups.OrderByDescending(Function(fr) fr.RevolutionNumber).FirstOrDefault()
+                    Return lastRevolution
+                Else
+                    Dim lastRevolution = group.OrderByDescending(Function(fr) fr.RevolutionNumber).FirstOrDefault()
+                    Return lastRevolution
+                End If
+            End If
+        End If
+    End Function
+
+    Private Function NormalizeTiming(timeEntries As List(Of UShort), tickResolution As Double) As List(Of Double)
+        Dim timing = New List(Of Double)
 
         Dim accumulatedTicks As Long = 0
         For Each entry In timeEntries
@@ -191,7 +222,7 @@
             End If
             accumulatedTicks += entry
 
-            timing.Add(accumulatedTicks)
+            timing.Add(accumulatedTicks * tickResolution)
             accumulatedTicks = 0
         Next
 

@@ -4,7 +4,8 @@
     Public ReadOnly TrackNumber As Byte
     Public ReadOnly SideNumber As Byte
     Public ReadOnly SectorNumber As Byte
-    Public ReadOnly SectorSize As Integer
+    Public ReadOnly SectorSize As Byte
+    Public ReadOnly SectorSizeInBytes As Integer
     Public ReadOnly IdentChecksum As UShort
     Public ReadOnly IdentCalculatedChecksum As UShort
     Public ReadOnly IdentEndBitIndex As Long
@@ -19,7 +20,8 @@
                    trackNumber As Byte,
                    sideNumber As Byte,
                    sectorNumber As Byte,
-                   sectorSize As Integer,
+                   sectorSize As Byte,
+                   sectorSizeInBytes As Integer,
                    identChecksum As UShort,
                    identCalculatedChecksum As UShort,
                    identEndBitIndex As Long,
@@ -33,6 +35,7 @@
         Me.SideNumber = sideNumber
         Me.SectorNumber = sectorNumber
         Me.SectorSize = sectorSize
+        Me.SectorSizeInBytes = sectorSizeInBytes
         Me.IdentChecksum = identChecksum
         Me.IdentCalculatedChecksum = identCalculatedChecksum
         Me.IdentEndBitIndex = identEndBitIndex
@@ -41,6 +44,8 @@
         Me.DataChecksum = dataChecksum
         Me.DataCalculatedChecksum = dataCalculatedChecksum
         Me.DataEndBitIndex = dataEndBitIndex
+
+
     End Sub
 
     Public ReadOnly Property IdentChecksumValid As Boolean

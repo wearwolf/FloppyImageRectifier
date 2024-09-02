@@ -33,7 +33,7 @@
 
             Dim maxBitCount = Math.Max(side0TrackData.BitCount, side1TrackData.BitCount)
             Dim byteCount = CInt(Math.Ceiling(maxBitCount / 8))
-            Dim trackLength = byteCount * 2
+            Dim trackLength = Math.Min(byteCount * 2, UInt16.MaxValue)
             Dim blockCount = CInt(Math.Ceiling(trackLength / HfeFile.BLOCK_LENGTH))
 
             Dim trackOffset = New HfeTrackOffset() With {

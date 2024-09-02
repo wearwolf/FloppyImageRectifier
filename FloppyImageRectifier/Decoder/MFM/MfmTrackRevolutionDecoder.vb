@@ -2,11 +2,13 @@
 
 #Region "Constants"
 
-    Private Const IDENTIFIER_MARK As UShort = &H4489          ' A1 with incorrect clock value
+    Private Const IDENTIFIER_MARK_SIGNATURE As UShort = &H4489          ' A1 with incorrect clock value
     Private Const IDENTIFIER_MARK_SECTOR As UShort = &H5554   ' FE
     Private Const IDENTIFIER_MARK_DATA As UShort = &H5545     ' FB
 
     Private Const IDENTIFIER_MARK_EDC As UShort = &H443B      ' EDC after reading in A1
+
+    Private Const IDENTIFIER_MARK_LENGTH As Integer = 16 * 8 * 2 ' 12 0x00 bytes, 3 0xA1 bytes, 1 type byte, 8 bits per byte, double for clock
 
     Private Const SECTOR_SIZE_MULTIPLIER As Integer = 128
 #End Region
@@ -19,12 +21,17 @@
 
     Private m_reachedEndOfTrack As Boolean
 
+    Private m_revolutionNumber As Integer
+    Private m_fixupsApplied As Boolean
+
 #End Region
 
 #Region "Constructor"
 
-    Public Sub New(bitList As BitList)
+    Public Sub New(bitList As BitList, revolutionNumber As Integer, fixupsApplied As Boolean)
         m_bitList = bitList
+        m_revolutionNumber = revolutionNumber
+        m_fixupsApplied = fixupsApplied
     End Sub
 
 #End Region
@@ -41,12 +48,13 @@
                 Exit While
             End If
 
-            Dim identifierStartIndex = m_bitList.ReadPosition - 16
+            Dim identifierStartIndex = m_bitList.ReadPosition - IDENTIFIER_MARK_LENGTH
 
             Dim cylinder = ReadByte()
             Dim side = ReadByte()
             Dim sectorNumber = ReadByte()
             Dim sectorSize = ReadByte()
+            Dim sectorSizeInBytes = SECTOR_SIZE_MULTIPLIER * Math.Pow(2, sectorSize)
 
             Dim calculatedIdentifierEdc = m_edc
             Dim identifierEdc = ReadUShort()
@@ -57,9 +65,9 @@
                 Exit While
             End If
 
-            Dim dataStartIndex = m_bitList.ReadPosition - 16
+            Dim dataStartIndex = m_bitList.ReadPosition - IDENTIFIER_MARK_LENGTH
 
-            Dim data = ReadBytes(SECTOR_SIZE_MULTIPLIER * Math.Pow(2, sectorSize))
+            Dim data = ReadBytes(sectorSizeInBytes)
 
             Dim calculatedDataEdc = m_edc
             Dim dataEdc = ReadUShort()
@@ -71,6 +79,7 @@
                                        side,
                                        sectorNumber,
                                        sectorSize,
+                                       sectorSizeInBytes,
                                        identifierEdc,
                                        calculatedIdentifierEdc,
                                        identifierEndIndex,
@@ -82,7 +91,7 @@
             sectors.Add(sector)
         End While
 
-        Dim revolution = New MfmTrackRevolution(m_bitList, sectors)
+        Dim revolution = New MfmTrackRevolution(m_bitList, sectors, m_revolutionNumber, m_fixupsApplied)
         Return revolution
     End Function
 
@@ -162,7 +171,7 @@
             End If
 
             For i = 0 To 2
-                If Not FindRawValue(IDENTIFIER_MARK) Then
+                If Not FindRawValue(IDENTIFIER_MARK_SIGNATURE) Then
                     ReadBit()
                     Continue While
                 End If

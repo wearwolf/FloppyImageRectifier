@@ -13,9 +13,10 @@
     Private Const PC_MFM_35_1440_BITCELL_LENGTH_RAD = 0.0000628
 
     Private Const SINGLE_ZERO_LOWER_BOUND = 0.8
-    Private Const DOUBLE_ZERO_LOWER_BOUND = 1.3
+    Private Const SINGLE_ZERO_AVERAGE = 1
+    Private Const DOUBLE_ZERO_LOWER_BOUND = 1.27
     Private Const DOUBLE_ZERO_AVERAGE = 1.475
-    Private Const TRIPLE_ZERO_LOWER_BOUND = 1.85
+    Private Const TRIPLE_ZERO_LOWER_BOUND = 1.8
     Private Const TRIPLE_ZERO_AVERAGE = 2.05
     Private Const TRIPLE_ZERO_UPPER_BOUND = 2.25
 
@@ -25,7 +26,6 @@
 
     Private m_diskRpm As Integer
     Private m_diskBitcellLengthRad As Double
-    Private m_tickResolution As Double
 
     Private m_maxBitcellTime As Double
     Private m_minBitcellTime As Double
@@ -34,7 +34,7 @@
 
 #Region "Constructor"
 
-    Public Sub New(diskType As FloppyDiskType, tickResolution As Double)
+    Public Sub New(diskType As FloppyDiskType)
         Select Case (diskType)
             Case FloppyDiskType.PC_MFM_525_360
                 m_diskRpm = PC_MFM_525_360_RPM
@@ -49,8 +49,6 @@
                 m_diskRpm = PC_MFM_35_1440_RPM
                 m_diskBitcellLengthRad = PC_MFM_35_1440_BITCELL_LENGTH_RAD
         End Select
-
-        m_tickResolution = tickResolution
 
         Dim diskSpeedRadPerSecond = (m_diskRpm * 2 * Math.PI) / 60
         m_nominalBitcellTime = m_diskBitcellLengthRad / diskSpeedRadPerSecond
@@ -82,17 +80,16 @@
 
 #Region "Public Methods"
 
-    Public Function Decode(timingList As List(Of Long)) As BitList
+    Public Function Decode(timingList As List(Of Double), trackNumber As Integer, sideNumber As Integer) As BitList
         Dim bitList = New BitList()
 
-        For Each tick In timingList
-            Dim time = tick * m_tickResolution
+        For Each time In timingList
             Dim bitCells = time / m_currentBitcellTime
             If bitCells < SINGLE_ZERO_LOWER_BOUND Then
                 Continue For
             ElseIf bitCells < DOUBLE_ZERO_LOWER_BOUND Then
                 bitList.AddBit(False)
-                AddAverageTime(time)
+                AddAverageTime(time / SINGLE_ZERO_AVERAGE)
             ElseIf bitCells < TRIPLE_ZERO_LOWER_BOUND Then
                 bitList.AddBit(False)
                 bitList.AddBit(False)
@@ -105,7 +102,7 @@
                 Dim newTime = time / TRIPLE_ZERO_AVERAGE
                 AddAverageTime(newTime)
             Else
-                Dim zeros = CInt((bitCells / 0.5)) - 2
+                Dim zeros = CInt(Math.Round((bitCells / 0.5))) - 2
                 For i = 0 To zeros
                     bitList.AddBit(False)
                 Next
