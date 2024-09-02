@@ -6,7 +6,7 @@ Module Program
     Sub Main(args As String())
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
 
-        If args.Length < 1 OrElse args.Length > 11 Then
+        If args.Length < 1 Then
             Console.WriteLine($"Unexpected number of arguments {args.Length}")
             Ussage()
             Return
@@ -17,6 +17,7 @@ Module Program
         Dim imgFilePath = String.Empty
         Dim diskType = FloppyDiskType.Unknown
         Dim outputPath = String.Empty
+        Dim htmlPath = String.Empty
         Dim rotationFixup = False
         For i = 0 To args.Length - 1
             Select Case args(i)
@@ -70,13 +71,35 @@ Module Program
                         outputPath = args(i + 1)
                         i = i + 1
                     End If
+                Case "-html"
+                    If args.Length <= i + 1 Then
+                        Console.WriteLine("missing value for html argument")
+                        Ussage()
+                        Exit Sub
+                    Else
+                        htmlPath = args(i + 1)
+                        i = i + 1
+
+                        Dim ext = Path.GetExtension(htmlPath)
+                        If ext <> String.Empty Then
+                            Console.WriteLine("HTML Path should point at a folder not a file")
+                            Ussage()
+                            Exit Sub
+                        End If
+                    End If
                 Case "-rotationFixups"
                     rotationFixup = True
             End Select
         Next
 
         Using outputWriter = New OutputWriter(outputPath)
-            If Not String.IsNullOrEmpty(scpFilePath) AndAlso (Not String.IsNullOrEmpty(hfeFilePath) OrElse Not String.IsNullOrEmpty(imgFilePath)) Then
+            If Not String.IsNullOrEmpty(scpFilePath) AndAlso Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(htmlPath) Then
+                GenerateCompareHtml(scpFilePath, hfeFilePath, htmlPath, diskType, rotationFixup, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(scpFilePath) AndAlso Not String.IsNullOrEmpty(htmlPath) Then
+                GenerateScpHtml(scpFilePath, htmlPath, diskType, rotationFixup, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(htmlPath) Then
+                GenerateHfeHtml(hfeFilePath, htmlPath, diskType, outputWriter)
+            ElseIf Not String.IsNullOrEmpty(scpFilePath) AndAlso (Not String.IsNullOrEmpty(hfeFilePath) OrElse Not String.IsNullOrEmpty(imgFilePath)) Then
                 ConvertScp(scpFilePath, hfeFilePath, imgFilePath, diskType, rotationFixup, outputWriter)
             ElseIf Not String.IsNullOrEmpty(hfeFilePath) AndAlso Not String.IsNullOrEmpty(imgFilePath) Then
                 ConvertHfe(hfeFilePath, imgFilePath, diskType, outputWriter)
@@ -91,6 +114,98 @@ Module Program
                 Ussage()
             End If
         End Using
+    End Sub
+
+    Private Sub GenerateCompareHtml(scpFilePath As String, hfeFilePath As String, htmlPath As String, diskType As FloppyDiskType, rotationFixup As Boolean, outputWriter As OutputWriter)
+        If diskType = FloppyDiskType.Unknown Then
+            Console.WriteLine("Missing disk type argument")
+            Ussage()
+            Exit Sub
+        End If
+
+        If Not File.Exists(scpFilePath) Then
+            Console.WriteLine($"Unable to find SCP file: {scpFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading SCP file: {scpFilePath}")
+        Dim scpFile = New ScpFile(scpFilePath)
+        scpFile.Read()
+
+        Console.WriteLine($"Decoding SCP file")
+        Dim scpDecoder = New ScpDecoder(scpFile)
+        Dim scpMfmFile = scpDecoder.DecodeMfm(diskType, rotationFixup)
+        scpMfmFile.CheckChecksums(outputWriter)
+
+        If Not File.Exists(hfeFilePath) Then
+            Console.WriteLine($"Unable to find HFE file: {hfeFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading HFE file: {hfeFilePath}")
+        Dim hfeFile = New HfeFile(hfeFilePath)
+        hfeFile.Read()
+
+        Console.WriteLine($"Decoding HFE file")
+        Dim hfeDecoder = New HfeDecoder(hfeFile)
+        Dim hfeMfmFile = hfeDecoder.DecodeMfm(diskType)
+        hfeMfmFile.CheckChecksums(outputWriter)
+
+        Console.WriteLine($"Writing HTML files to: {htmlPath}")
+        Dim htmlEncoder = New HtmlCompareEncoder(scpMfmFile, hfeMfmFile, htmlPath)
+        htmlEncoder.GenerateFiles(outputWriter)
+    End Sub
+
+    Private Sub GenerateScpHtml(scpFilePath As String, htmlPath As String, diskType As FloppyDiskType, rotationFixup As Boolean, outputWriter As OutputWriter)
+        If diskType = FloppyDiskType.Unknown Then
+            Console.WriteLine("Missing disk type argument")
+            Ussage()
+            Exit Sub
+        End If
+
+        If Not File.Exists(scpFilePath) Then
+            Console.WriteLine($"Unable to find SCP file: {scpFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading SCP file: {scpFilePath}")
+        Dim scpFile = New ScpFile(scpFilePath)
+        scpFile.Read()
+
+        Console.WriteLine($"Decoding SCP file")
+        Dim scpDecoder = New ScpDecoder(scpFile)
+        Dim mfmFile = scpDecoder.DecodeMfm(diskType, rotationFixup)
+        mfmFile.CheckChecksums(outputWriter)
+
+        Console.WriteLine($"Writing HTML files to: {htmlPath}")
+        Dim htmlEncoder = New HtmlEncoder(mfmFile, htmlPath)
+        htmlEncoder.GenerateFiles(outputWriter)
+    End Sub
+
+    Private Sub GenerateHfeHtml(hfeFilePath As String, htmlPath As String, diskType As FloppyDiskType, outputWriter As OutputWriter)
+        If diskType = FloppyDiskType.Unknown Then
+            Console.WriteLine("Missing disk type argument")
+            Ussage()
+            Exit Sub
+        End If
+
+        If Not File.Exists(hfeFilePath) Then
+            Console.WriteLine($"Unable to find HFE file: {hfeFilePath}")
+            Return
+        End If
+
+        Console.WriteLine($"Reading HFE file: {hfeFilePath}")
+        Dim hfeFile = New HfeFile(hfeFilePath)
+        hfeFile.Read()
+
+        Console.WriteLine($"Decoding HFE file")
+        Dim hfeDecoder = New HfeDecoder(hfeFile)
+        Dim mfmFile = hfeDecoder.DecodeMfm(diskType)
+        mfmFile.CheckChecksums(outputWriter)
+
+        Console.WriteLine($"Writing HTML files to: {htmlPath}")
+        Dim htmlEncoder = New HtmlEncoder(mfmFile, htmlPath)
+        htmlEncoder.GenerateFiles(outputWriter)
     End Sub
 
     Sub ConvertScp(scpFilePath As String, hfeFilePath As String, imgFilePath As String, diskType As FloppyDiskType, rotationFixup As Boolean, outputWriter As OutputWriter)

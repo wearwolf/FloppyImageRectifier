@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+    <title>Test</title>
+    <style type="text/css">
+        .Unknown {
+            color:#898989;
+        }
+
+        .clock {
+            color: black;
+        }
+
+        .data {
+            color: black;
+            font-weight: bold;
+        }
+
+        .byte {
+            display: flex;
+            flex-wrap: wrap;
+            outline: 1px solid black;
+        }
+
+        .track {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .gap {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #e0e0e0;
+            outline: 1px solid black;
+        }
+
+        .sectorIdentMark {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #b9e6fc;
+        }
+
+        .trackNumber {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #4cc3fc;
+        }
+
+        .sideNumber {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #5fe7fa;
+        }
+
+        .sectorNumber {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #5db2fb;
+        }
+
+        .sectorSize {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #5f88fa;
+        }
+
+        .checksum {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #b730ff;
+        }
+
+        .dataBlock {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #fa85ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="track">
+        <div class="gap" title="gap">
+            <div class="Unknown">
+                0
+            </div>
+            <div class="Unknown">
+                0
+            </div>
+            <div class="Unknown">
+                0
+            </div>
+            <div class="Unknown">
+                0
+            </div>
+            <div class="Unknown">
+                0
+            </div>
+            <div class="Unknown">
+                0
+            </div>
+            </div>
+            <div class="sectorIdentMark" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="trackNumber" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="sideNumber" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="sectorNumber" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="sectorSize" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="checksum" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="dataBlock" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+            <div class="checksum" title="Sector Identifier mark">
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        0
+                    </div>
+                    <div class="clock" title="1.23 ns">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+                <div class="byte">
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                    <div class="clock">
+                        1
+                    </div>
+                    <div class="data">
+                        1
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+</html>
