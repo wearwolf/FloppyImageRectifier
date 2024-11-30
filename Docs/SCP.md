@@ -18,7 +18,7 @@ This file contains the flux transition timings of a floppy disk
 | BitCellWidth | 1 | The number of bits used to record timing information |
 | HeadNumber | 1 | The number of heads read |
 | CaptureResolution | 1 | The time multiplier for timing information |
-| Checksum | 1 | A 32-bit wrap-around addition checksum for the rest of the file, not set for read-write images |
+| Checksum | 4 | A 32-bit wrap-around addition checksum for the rest of the file, not set for read-write images |
 
 It looks like -1 (0xFF) is the default for unknown values but there's nothing about this in the spec
 
