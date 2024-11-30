@@ -116,7 +116,7 @@ Valid entries are based on the StartTrack and EndTrack values in the header
 
 Empty tracks have a value of 0x00000000
 
-Even tracks are from side 0 and odd tracks are from side 1. If only one side is read then tracks from other side should all be null. 
+Even tracks are from side 0 and odd tracks are from side 1. If only one side is read then tracks from the other side should all be null. 
 
 ## Tracks
 
