@@ -135,7 +135,7 @@ This is followed by a series of revolution entries, the number of entries is bas
 | TRACK LENGTH | 4 | The number of time entries for the track |
 | DATA OFFSET | 4 | The offset to the time entries for this track relative to the start of the track header |
 
-The value is in little endian
+The header values are in little endian
 
 At the specified Data Offset for each revolution will be a a series of values. The size of these values depends on the BitCellWidth value
 in the header but is typically 16 bits.
