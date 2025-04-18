@@ -26,7 +26,7 @@ after removing the general options, is in the actions list.
 If the action is found it then imports a module by looking for "greaseweazle.tools.\<action\>" and checking if that module has a main method. If the method
 exists the program calls it.
 
-For the convert example it calls [convert.main()][convert.main]
+For the convert example it calls [convert.main()](#convertmain)
 
 ## greaseweazle/tools/convert.py
 
@@ -84,7 +84,7 @@ If the out_tracks argument is set, out_def_tracks is updated based on the argume
 
 ### convert.open_input_image
 
-Called from [convert.main]
+Called from (#convertmain)
 
 open_input_image() calls from_file on the passed in image class object with the in_file argument and fmt_cls
 
@@ -92,7 +92,7 @@ For this example that would be [scp.from_file]
 
 ### convert.open_output_image
 
-Called from [convert.main]
+Called from [convert.main()](#convertmain)
 
 open_output_image() calls to_file on the passed in image class object with the out_file argument, fmt_cls and no_clobber
 
@@ -103,7 +103,7 @@ are then set as fields on the image
 
 ### convert.convert
 
-Called from [convert.main]
+Called from [convert.main()](#convertmain)
 
 The convert function loops through args.out_tracks and gets the cylinder and head value for each track.
 
@@ -317,13 +317,13 @@ If no value is specified, period_adj_pct defaults to 5, phase_adj_pct defaults t
 
 #### Codec.get_diskdef
 
-Called from [convert.main]
+Called from [convert.main()](#convertmain)
 
 ## greaseweazle/tools/util.py
 
 ### util.ArgumentParser
 
-Used by [convert.main]
+Used by [convert.main()](#convertmain)
 
 This class derives from [argparse][argparse].ArgumentParser
 
@@ -348,7 +348,7 @@ parses the set of arguments passed in and generates an object with the argument 
 
 ### util.split_opts
 
-Called from [convert.main]
+Called from [convert.main()](#convertmain)
 
 Splits key-value pair options off of a string
 
@@ -362,7 +362,7 @@ If the "=" split is successful then it's stored as a key-value in the dictionary
 
 ### util.get_image_class
 
-Called from [convert.main]
+Called from [convert.main()](#convertmain)
 
 Looks up the image_class based on a file path
 
