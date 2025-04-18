@@ -32,11 +32,11 @@ For the convert example it calls [convert.main()](#convertmain)
 
 ### convert.main
 
-Called from [cli.main]
+Called from [cli.main()](#climain)
 
-The main method starts by defining an epilog string and creating an [ArgumentParser][util.ArgumentParser] object by passing in
- purpose string and the epilog string (it gets shown at the end of the help string). It then adds a series of arguments to
- the parser by calling [add_argument][ArgumentParser.add_argument].
+The main method starts by defining an "epilog" string and creating an [ArgumentParser](#utilArgumentParser) object by passing in
+ a "purpose" string and the "epilog" string. These get used by the ArgumentParser to create a help message.
+ It then adds a series of arguments to the parser by calling [add_argument](#ArgumentParseradd_argument).
 
 The following arguments are defined for the command
 
