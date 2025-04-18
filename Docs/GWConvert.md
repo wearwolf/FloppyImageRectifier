@@ -12,13 +12,13 @@ the bitrate would be 250 for 360k or 720k disk images
 
 ## gw.py
 
-gw.py imports cli and then calls [cli.main()][climain]
+gw.py imports cli and then calls [cli.main()](#cli.main)
 
 ## greaseweazle/cli.py
 
 ### cli.main
 
-Called from [gwpy]
+Called from [gw.py]
 
 This function starts by doing some command line argument checking for general options. It then tests to see if the first argument,
 after removing the general options, is in the actions list.
