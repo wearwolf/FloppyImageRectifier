@@ -44,29 +44,29 @@ The following arguments are defined for the command
 | --- | --- | --- | --- | --- |
 | --diskdefs | | | | disk definitions file |
 | --format | | | |disk format |
-| --tracks | | TSPEC | [util.TrackSet] | which tracks to read & convert from input |
-| --out-tracks | | TSPEC | [util.TrackSet] | which tracks to output (default: --tracks |
-| --adjust-speed | | SPEED | [util.period] | scale track data to effective drive SPEED |
+| --tracks | | TSPEC | [util.TrackSet](#utilTrackSet) | which tracks to read & convert from input |
+| --out-tracks | | TSPEC | [util.TrackSet](#utilTrackSet) | which tracks to output (defaults to --tracks) |
+| --adjust-speed | | SPEED | [util.period](#utilperiod) | scale track data to effective drive SPEED |
 | --no-clobber | -n | | store_true | do not overwrite an existing file |
-| --pll | | PLLSPEC | [track.PLL] | manual PLL parameter override |
+| --pll | | PLLSPEC | [track.PLL](#trackPLL) | manual PLL parameter override |
 | in_file | | | | input filename |
 | out_file | | | | output filename |
 
-After adding the arguments, the [parse_args][ArgumentParser.parse_args] method on the parser is called to parse them.
+After adding the arguments, the function's argv pararamater is passed to the [parse_args](#ArgumentParserparse_args) method on the parser.
 
-Then the out_file options are separated from the file path using [util.split_opts] and stored in args.out_file_opts
+Then the out_file options are separated from the file path using [util.split_opts](#utilsplit_opts) and stored in args.out_file_opts
 
 If a PLL override is specified then it is inserted at the front of the global PLL list
 
-The function then looks up an image class object with [util.get_image_class] for the in_file and the out_file
+The function then looks up an image class object with [util.get_image_class](#utilget_image_class) for both the in_file and the out_file
 
 if no format option is specified then it tries to use the format parameter from the input image class, if that isn't specified then it
 uses the format parameter from the output image class
 
-If a format is found, it tries to look up a diskdef with [codec.get_diskdef] for the format argument and the specified diskdefs file.
+If a format is found, it tries to look up a diskdef with [codec.get_diskdef](codecget_diskdef) for the format argument and the specified diskdefs file.
 This gets stored in args.fmt_cls. Track information from the diskdef is copied to def_tracks
 
-IF def_tracks isn't defined, it is set using [util.TrackSet] with 'c=0-81:h=0-1'.
+IF def_tracks isn't defined, it is set using [util.TrackSet](#utilTrackSet) with 'c=0-81:h=0-1'.
 
 out_def_tracks defaults to a copy of def_tracks
 
@@ -74,21 +74,21 @@ If the tracks argument is defined, def_tracks is updated based on the argument a
 
 args.tracks then gets updated based on def_tracks
 
-If the out_tracks argument is set, out_def_tracks is updated based on the argument and then copied backed into args.out_tracks
+If the out_tracks argument is set, out_def_tracks is updated based on the argument and then copied back into args.out_tracks
 
-[open_input_image][convert.open_input_image] is called to load the input file based on the arguments and the in_image_class and the result gets stored in in_image
+[open_input_image](convertopen_input_image) is called to load the input file based on the arguments and the in_image_class and the result gets stored in in_image
 
-[open_output_image][convert.open_output_image] is called to open the output file based on the arguments and then out_image_class and the result gets stored in out_image
+[open_output_image](#convertopen_output_image) is called to open the output file based on the arguments and then out_image_class and the result gets stored in out_image
 
-[convert][convert.convert] is called with arguments, in_image, out_image to convert the files
+[convert](#convertconvert) is called with arguments, in_image and out_image to convert the files
 
 ### convert.open_input_image
 
-Called from (#convertmain)
+Called from [convert.main()](#convertmain)
 
 open_input_image() calls from_file on the passed in image class object with the in_file argument and fmt_cls
 
-For this example that would be [scp.from_file]
+For this example that would be [scp.from_file](#scpfrom_file)
 
 ### convert.open_output_image
 
@@ -96,7 +96,7 @@ Called from [convert.main()](#convertmain)
 
 open_output_image() calls to_file on the passed in image class object with the out_file argument, fmt_cls and no_clobber
 
-For this example that would be [hfe.to_file]
+For this example that would be [hfe.to_file](#hfe.to_file)
 
 The args.out_file_opts values are checked against the output image to see if the options exist as fields on the image class. The options
 are then set as fields on the image
@@ -107,16 +107,16 @@ Called from [convert.main()](#convertmain)
 
 The convert function loops through args.out_tracks and gets the cylinder and head value for each track.
 
-It checks if the cylinder and head combination has a value stored in summary and store it in dat
+It checks if the cylinder and head combination has a value stored in summary and stores it in dat if it found one
 
-Otherwise it calls [process_input_track][convert.process_input_track] with args, the result of calling 
-[TrackIdentity][convert.TrackIdentity] on args.tracks, cyl and head and the in_image, the output is stored in dat
+Otherwise it calls [process_input_track](#convertprocess_input_track) with args, the result of calling 
+[TrackIdentity](#convertTrackIdentity) on args.tracks, cyl and head and the in_image, the output is stored in dat
 
 if dat is none then it gets ignored, otherwise if args.fmt_cls is set it checks if dat is an instance of Codec and stores the value in summary.
 
-Then emit_track is called on out_image with the cylinder, head and dat
+Then emit_track method is called on out_image with the cylinder, head and dat
 
-For this example that would be [hfe.emit_track]
+For this example that would be [hfe.emit_track](#hfeemit_track)
 
 ### convert.TrackIdentity
 
@@ -124,10 +124,10 @@ A class that is used to describe a specific track
 
 #### TrackIdentity.init
 
-TrackIdentity is an object that takes a [trackset][util.trackset] along with a cylinder and a head value. 
+TrackIdentity is an object that takes a [util.TrackSet](#utilTrackSet) along with a cylinder and a head value. 
 The Cylinder and head values are set as fields on the object.
 
-physical_cyl and physical_head are calculated by calling [ch_to_pch][trackset.ch_to_pch] on the trackset with the cylinder and head values
+physical_cyl and physical_head are calculated by calling [ch_to_pch](#tracksetch_to_pch) on the trackset with the cylinder and head values
 
 ### convert.process_input_track
 
@@ -137,7 +137,7 @@ The cylinder and head values are separated from the track identity, an optional 
 
 It them calls get_track on the input image using the physical head and cylinder as arguments
 
-For this example that would be [scp.get_track]
+For this example that would be [scp.get_track])#scpget_track)
 
 If the track is none then the method returns none
 
@@ -151,6 +151,8 @@ Otherwise it calls a decode_flux on the fmt_cls argument and passes it the cylin
 return value in dat. If dat is none then a warning is displayed and none is returned, otherwise it asserts that dat is an instance of Codec,
 and then loops through the pll list starting at index 1, it calls a nr_missing function on the dat variable and if it returns 0, it exists the 
 loop, otherwise it calls decode_flux on dat with the track and the current pll item as parameters
+
+In this example fmt_cls will be none so the track will just be returned
 
 ## greaseweazle/image/scp.py
 
@@ -167,7 +169,7 @@ This class defines the options available for the SCP image.
 * legacy_ss - use the legacy single sided format
 * disktype - the disk type of the image
 
-The property definition for disktype parses the pased in value and validates that it's in the list
+The property definition for disktype parses the passed in value and validates that it's in the list
 
 ### scp.SCPTrack
 
@@ -183,14 +185,14 @@ Defines an SCP image and provides methods for processing them
 
 Defines the default frequency as 40000000 (40MHz), this corresponds to the default sample rate of 25 ns, 1/25 x 10<sup>−9</sup> = 40000000)
 
-* opts - an instance of [SCPOpts][scp.SCPOpts]
+* opts - an instance of [SCPOpts](#scpSCPOpts)
 * nr_revs - (optional) number of revolutions
-* to_track - a dictionary of track numbers to [SCPTrack][scp.SCPTrack] objects
+* to_track - a dictionary of track numbers to [SCPTrack](#scpSCPTrack) objects
 * index_cued - indicates if the image is index cued
 
 #### scp.init
 
-Creates a blank SCP image, sets opts to a new [SCPOpts][scp.SCPOpts] object, sets nr_revs to none, sets to_track to a new dictionary and
+Creates a blank SCP image, sets opts to a new [SCPOpts](#scpSCPOpts) object, sets nr_revs to none, sets to_track to a new dictionary and
 sets index_cued to true
 
 #### scp.side_count
@@ -203,15 +205,15 @@ will have a least significant bit of 1 and get counted towards side 1.
 
 #### scp.from_file
 
-Called from [convert.open_input_image]
+Called from [convert.open_input_image()](#convertopen_input_image)
 
-This function is marked as a class method wo that it can be called without an instance. 
+This function is marked as a class method so that it can be called without an instance. 
 
 It takes a variable representing the class, a file name and a format as parameters
 
 The method starts by setting splices to none
 
-It then opens the file specified by name for read binary and reads all of it into dat.
+It then opens the file specified by name in read binary mode and reads all of it into dat.
 
 Next the function uses struct.unpack to read the header values from dat. Some of the values are stored in variables, others are ignored.
 
@@ -236,7 +238,7 @@ The function then verifies that sig equals "SCP" and verifies that the sum of th
 
 The function then reads 168 integers from dat and stores it in trk_offs. It then does a loop from 0 to 168 and tries to read the offset
 from trk_offs. If there's an error reading the value it breaks out of the loop. if the value is 0 or greater than 0x2b0 (The typical end of
-the track offset list) it just continues. Otherwise it divides the value by 4 and then subtracts 4. It then verifies that the result is
+the track offset list) it just continues and leaves the track offset unmodified. Otherwise it divides the value by 4 and then subtracts 4. It then verifies that the result is
 greater than 0. If it is then it adds the result to the end of trk_offs (I don't know what this is for)
 
 After this it checks for the existence of an extension block and parses it (I don't think any of my images use this).
@@ -248,10 +250,12 @@ The program then gets the track header data by getting 4 + 12 x number of revolu
 by getting the signature and track number from the header and verifying the track signature = TRK and that the track number matches
 the index of the track offset. Next it removes that part of the track header from the bytes extracted. The program then does a reverse
 loop through the remaining revolution headers and removes any trailing revolutions with 0 track length or data offset. If no revolutions are
-left it skips to the next track. If the track is not index cued and the there are multiple revolutions, the first revolution is skipped.
+left it skips to the next track.
+
+If the track is not index cued and the there are multiple revolutions, the first revolution is skipped.
 The program then reads the data offset from the remaining first revolution. The program adds the length of the last revolution of the track
 to the offset of the last revolution. If the offset of the first revolution and the last revolution match, the track is skipped. Finally
-the data for all the revolutions is extracted from the file data and stored in a new [SCPTrack][scp.SCPTrack] object along with the remaining
+the data for all the revolutions is extracted from the file data and stored in a new [SCPTrack](#scpSCPTrack) object along with the remaining
 data in the track header. If splices is not none (Calculated as part of the extension block) then the splice value for this track is also
 stored on the SCPTrack object. Finally the track is added to to_track on the scp object.
 
@@ -277,7 +281,7 @@ The function then loops through the track data bytes, The data is extracted by a
 16 bit, big endian value). If the value is 0, 65536 is added to the val variable and the next two bytes are read, otherwise the value
 is added to val and stored in flux_list and val is reset to 0. 
 
-A [flux][flux.flux] object is created from the index list, the flux_list and the image's sample frequency
+A [flux](#fluxflux) object is created from the index list, the flux_list and the image's sample frequency
 
 The track's splice information is added to the flux object if available
 
@@ -287,9 +291,13 @@ finally the flux object is returned
 
 ### hfe.to_file
 
-Called from [convert.open_output_image]
+Called from [convert.open_output_image](#convertopen_output_image)
+
+#TODO
 
 ### hfe.emit_track
+
+#TODO
 
 ## greaseweazle/track.py
 
@@ -318,6 +326,8 @@ If no value is specified, period_adj_pct defaults to 5, phase_adj_pct defaults t
 #### Codec.get_diskdef
 
 Called from [convert.main()](#convertmain)
+
+#TODO
 
 ## greaseweazle/tools/util.py
 
@@ -368,10 +378,10 @@ Looks up the image_class based on a file path
 
 The method starts by getting the extension from the file path.
 
-The method then looks up the lowercase version of the extension in image_types and throws an error if it isn't.
+The method then looks up the lowercase version of the extension in image_types and throws an error if it isn't found.
 
 If the result is a tuple then it's stored as typename and classname, otherwise the single value is stored as typename and the lowercase
-version of the name is stnored as classname.
+version of the name is stored as classname.
 
 A module defined by 'greaseweazle.image.' + classname is then loaded and a __dict__ method is called with typename as an argument
 
@@ -393,7 +403,7 @@ An SCP value is divided by 40e6
 
 Contains a list of cylinders and heads along with options like if the heads are swapped, offset per head and the step
 
-The constructor initializes the default values and then calls update_from_trackspec with the passed in string
+The constructor initializes the default values and then calls [update_from_trackspec()](#TrackSetupdate_from_trackspec) with the passed in string
 
 Head offset = 0, step = 1, head swap = false
 
@@ -405,7 +415,7 @@ The value is split by ":" and then the parts are checked.
 
 If a part is hswap then head swap is set to true
 
-otherwise it tries to split it on "=", the left hand side is treated as a key and the right hand side is treated as the value.
+otherwise it tries to split the part on "=", the left hand side is treated as a key and the right hand side is treated as the value.
 
 If the key is c then the value is parsed to determine a list of cylinders. THe value is a series of ranges separated by commas. The
 ranges can either be a single value, a start and end value separated by a dash or a start and end value separated by a dash and followed
