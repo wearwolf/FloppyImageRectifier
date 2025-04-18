@@ -137,7 +137,7 @@ The cylinder and head values are separated from the track identity, an optional 
 
 It them calls get_track on the input image using the physical head and cylinder as arguments
 
-For this example that would be [scp.get_track])#scpget_track)
+For this example that would be [scp.get_track](#scpget_track)
 
 If the track is none then the method returns none
 
