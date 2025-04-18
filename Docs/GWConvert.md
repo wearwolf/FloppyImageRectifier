@@ -12,7 +12,7 @@ the bitrate would be 250 for 360k or 720k disk images
 
 ## gw.py
 
-gw.py imports cli and then calls [cli.main()](#cli.main)
+gw.py imports cli and then calls [cli.main()](#climain)
 
 ## greaseweazle/cli.py
 
