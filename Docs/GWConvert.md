@@ -18,7 +18,7 @@ gw.py imports cli and then calls [cli.main()][climain]
 
 ### cli.main
 
-Called from [gw.py]
+Called from [gwpy]
 
 This function starts by doing some command line argument checking for general options. It then tests to see if the first argument,
 after removing the general options, is in the actions list.
